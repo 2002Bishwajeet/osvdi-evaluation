@@ -64,9 +64,6 @@ The **native client** (`remote-viewer`) serves as the **ground truth baseline** 
 | Text selection blocking | Working | Working | Same JS (CSS + MutationObserver) |
 | Landscape orientation lock | Working | Working | Forced for SPICE sessions |
 | Product flavor builds | Working | Working | Both have bwLPRemote + OSVDIClient |
-| CI/CD pipeline | Working | Missing | Android: GitLab CI. iOS: no automation |
-| Internationalization | Working | Missing | Android: 15 languages. iOS: English only |
-| Haptic feedback | Partial | Working | Android: JS bridge exists, no native handler |
 | Pinch-to-zoom | Broken | Partial | Android: TODO in code. iOS: 0.5x-1.0x only |
 
 ---
