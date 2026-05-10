@@ -83,6 +83,7 @@ The **native client** (`remote-viewer`) serves as the **ground truth baseline** 
 |---------|--------|------------------------------|
 | Screen not scaled to device | Critical — portions of remote desktop unreachable | Fit-to-screen by default, pinch to zoom for detail |
 | Mouse cursor missing | Critical — cannot see where you're pointing | Visible software cursor overlay tracking touch position |
+| No back/home navigation button | High — user is trapped in the SPICE session with no way to go back | Back button or home icon to return to VM selection (iOS has this) |
 
 ### iOS: Taskbar Cut Off & Viewport Scaling — High
 
