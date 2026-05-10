@@ -288,5 +288,3 @@ The native client (`remote-viewer`) already works and supports everything. The W
 
 - **[Accessibility & Touch UX Evaluation](accessibility-evaluation.md)** — detailed comparison with 6 industry apps, gesture mapping tables, gap analysis
 - **[Cross-Platform Strategy](cross-platform-strategy.md)** — Flutter, KMP, native rendering options, migration paths
-- **[Keyboard Mapping Template](keyboard-mapping/template.md)** — per-variant keyboard test template
-- **[Benchmark Template](benchmarks/template.md)** — performance benchmark test template
