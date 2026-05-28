@@ -667,16 +667,31 @@ SSE `?access_token=...` in URL is visible in logs, browser history, and referrer
 
 # Access Gateway: RDP Baseline Comparison
 
-<div class="text-xs">
+<div class="text-sm font-semibold mb-1 opacity-60">UX Parity with RDP / Guacamole</div>
 
-| Aspect | FreeRDP / MS RD | bwLehrpool (Guacamole) | OSVDI Gateway |
-|--------|:-:|:-:|:-:|
-| Single-click connect | Yes | Yes | Needs VM start first |
-| Credential storage | Yes | Browser | Keycloak SSO |
-| Multi-factor auth | Yes (AD) | No | Keycloak (configurable) |
-| Embedded remote view | Yes | Yes | **No — redirects away** |
-| Mobile-friendly UI | RD Client app | Responsive web | Responsive web |
+<div class="gauge-row">
+  <div class="gauge-label">Connect</div>
+  <div class="gauge-track"><div class="gauge-mid" style="width:60%;">VM start first</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Credentials</div>
+  <div class="gauge-track"><div class="gauge-full" style="width:90%;">Keycloak SSO</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">MFA</div>
+  <div class="gauge-track"><div class="gauge-full" style="width:100%;">Keycloak</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Embed view</div>
+  <div class="gauge-track"><div class="gauge-low" style="width:20%;">Redirects</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Mobile UI</div>
+  <div class="gauge-track"><div class="gauge-high" style="width:75%;">Responsive</div></div>
+</div>
 
+<div class="heatmap-legend mt-2">
+  <span class="opacity-50 text-xs">Baseline: FreeRDP (full bars) / Guacamole (no embed but simple)</span>
 </div>
 
 <div v-click class="status-card status-info mt-2">
@@ -779,18 +794,35 @@ TESTING NOTES:
 
 # Native Client: RDP Comparison
 
-<div class="text-xs">
+<div class="text-sm font-semibold mb-1 opacity-60">OSVDI Native vs FreeRDP (full = parity)</div>
 
-| Feature | FreeRDP | OSVDI Native | Gap |
-|---------|:-------:|:------------:|:---:|
-| Video (HW decode) | Yes | Yes | — |
-| Audio, clipboard, USB | Yes | In code (untested) | Test needed |
-| File transfer | Yes | **Almost** (chardev) | Config fix |
-| Printing | Yes | **No** | Missing |
-| Multi-monitor | Yes | **Partial** | Fix needed |
-| Cross-platform | Win/Mac/Linux | **Linux only** | Build needed |
-| Install & connect | `apt install` + run | AppImage + deps, no "copy URI" | UX |
-
+<div class="gauge-row">
+  <div class="gauge-label">Video (HW)</div>
+  <div class="gauge-track"><div class="gauge-full" style="width:100%;">Parity</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Audio/Clip/USB</div>
+  <div class="gauge-track"><div class="gauge-high" style="width:65%;">In code, untested</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">File transfer</div>
+  <div class="gauge-track"><div class="gauge-mid" style="width:80%;">Almost — chardev fix</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Printing</div>
+  <div class="gauge-track"><div class="gauge-low" style="width:5%;"></div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Multi-monitor</div>
+  <div class="gauge-track"><div class="gauge-mid" style="width:40%;">Surface 0 only</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Cross-platform</div>
+  <div class="gauge-track"><div class="gauge-low" style="width:33%;">Linux only</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Install UX</div>
+  <div class="gauge-track"><div class="gauge-low" style="width:25%;">Manual deps</div></div>
 </div>
 
 <div v-click class="status-card status-warn mt-2" style="padding:0.4rem 0.75rem;">
@@ -1371,39 +1403,27 @@ layout: section
 <div>
 
 ### Server & Protocol
-
-
-- DMA-BUF zero-copy encoding — adaptive bitrate (128K–20Mbps)
-- 14 codec types defined in protocol (future-proof)
-- SPICE routing via nginx SNI — elegant
-
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>DMA-BUF zero-copy encoding — adaptive bitrate</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>14 codec types in protocol (future-proof)</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>SPICE routing via nginx SNI — elegant</div>
 
 ### Native Client
-
-
-- Video decode works (HW-accel, 12 codecs in code)
-- Runtime codec switching UI, AppImage pipeline
-- Audio, clipboard, USB: in code, **testing pending**
-
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Video decode works (HW-accel, 12 codecs)</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Runtime codec switching UI, AppImage CI</div>
+<div class="traffic-item"><div class="traffic-dot dot-blue"></div>Audio, clipboard, USB: in code, <b>untested</b></div>
 
 </div>
 <div>
 
 ### Access Gateway
-
-
-- Keycloak OIDC authentication
-- Real-time SSE desktop updates
-- Desktop management (CRUD) works
-
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Keycloak OIDC authentication</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Real-time SSE desktop updates</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Desktop management (CRUD) works</div>
 
 ### Infrastructure
-
-
-- Full observability (OTel + Grafana), measurement tools ready
-- Guest agent (clipboard, USB, file transfer code complete)
-- Multiple storage backends (NFS, Ceph RBD, DNBD3)
-
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Full observability (OTel + Grafana)</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Guest agent (clipboard, USB, file transfer code)</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Multiple storage backends (NFS, Ceph, DNBD3)</div>
 
 </div>
 </div>
@@ -1424,15 +1444,14 @@ Infrastructure: OTel/Grafana/storage backends confirmed from docker-compose.yaml
 
 ### Critical (Blocks Basic Usage)
 
-
-- **spice-html5:** H.264 hardcoded 1920x1080
-- **spice-html5:** No reconnection on disconnect
-- **spice-html5:** File transfer is fake (UI only)
-- **Mobile:** Screen cropped / taskbar cut off
-- **Mobile:** No cursor visible (Android)
-- **Mobile:** No modifier keys on either platform
-- **Mobile:** iOS session dies on screen lock
-- **Gateway:** SSE token exposed in URL
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>spice-html5:</b> H.264 hardcoded 1920x1080</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>spice-html5:</b> No reconnection on disconnect</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>spice-html5:</b> File transfer is fake (UI only)</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Mobile:</b> Screen cropped / taskbar cut off</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Mobile:</b> No cursor visible (Android)</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Mobile:</b> No modifier keys on either platform</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Mobile:</b> iOS session dies on screen lock</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Gateway:</b> SSE token exposed in URL</div>
 
 
 </div>
@@ -1440,16 +1459,15 @@ Infrastructure: OTel/Grafana/storage backends confirmed from docker-compose.yaml
 
 ### Significant (Blocks Real Work)
 
-
-- **spice-html5:** Modifier key desync on focus loss
-- **spice-html5:** No dead key / IME input
-- **Server:** Only 4 of 14 codecs encoded
-- **Server:** No H.265/AV1 encoding despite protocol support
-- **Native:** File transfer not wired (missing chardev)
-- **Native:** Multi-monitor limited to surface 0
-- **Native:** Linux-only — no macOS / Windows builds
-- **Gateway:** No session timeout warning
-- **Mobile:** No scroll, zoom broken, no settings
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>spice-html5:</b> Modifier key desync on focus loss</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>spice-html5:</b> No dead key / IME input</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Server:</b> Only 4 of 14 codecs encoded</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Server:</b> No H.265/AV1 despite protocol support</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Native:</b> File transfer not wired (chardev)</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Native:</b> Multi-monitor limited to surface 0</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Native:</b> Linux-only — no macOS / Windows</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Gateway:</b> No session timeout warning</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Mobile:</b> No scroll, zoom broken, no settings</div>
 
 
 </div>
@@ -1490,6 +1508,13 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
   <div class="hero-stat" style="font-size:1.8rem;">5</div>
   <div class="hero-stat-label" style="font-size:0.55rem;">In spice-html5</div>
 </div>
+</div>
+
+<div class="stacked-bar mb-1">
+  <div class="stacked-segment" style="width:50%; background:#b45309;">spice-html5 (5)</div>
+  <div class="stacked-segment" style="width:20%; background:#0369a1;">Gateway (2)</div>
+  <div class="stacked-segment" style="width:10%; background:#7c3aed;">Server (1)</div>
+  <div class="stacked-segment" style="width:20%; background:#be185d;">Mobile (2)</div>
 </div>
 
 <div class="grid grid-cols-2 gap-3 text-xs">
