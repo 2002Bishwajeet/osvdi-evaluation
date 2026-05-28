@@ -120,26 +120,22 @@ layout: section
 
 ### What is VDI?
 
-<v-clicks>
 
 - Desktop PCs offered as **remote VMs**
 - Users connect via a **Remote Access Protocol** (RAP)
 - Goal: replicate local desktop experience
 
-</v-clicks>
 
 ### Why it matters
 
-<v-clicks>
 
 - **Students**: access uni resources from any device
 - **Staff**: work from anywhere, any OS
 - **IT**: centralized, secure environments
 
-</v-clicks>
 
 </div>
-<div v-click>
+<div>
 
 <div class="status-card status-info">
 
@@ -204,46 +200,38 @@ layout: section
 
 ### Access Layer
 
-<v-clicks>
 
 - **React 18** (`osvdi-fe`) + Redux, MUI 7
 - Redirects to SPICE HTML5 (not embedded)
 - **Keycloak 26** OIDC authentication
 
-</v-clicks>
 
 ### Backend (5 Docker Services)
 
-<v-clicks>
 
 - **C# ASP.NET Core 10** REST API
 - **nginx** proxy (TLS + SPICE routing)
 - SQLite DB, LGTM observability, OpenTelemetry
 
-</v-clicks>
 
 </div>
-<div v-click>
+<div>
 
 ### Infrastructure
 
-<v-clicks>
 
 - **QEMU/KVM** hypervisors (libvirt)
 - Storage: NFS, Ceph RBD, DNBD3, local
 - Proxmox & OpenStack scaffolded
 
-</v-clicks>
 
 ### SPICE Routing (nginx)
 
-<v-clicks>
 
 - SNI: `{desktop-id}.proxy.example.com`
 - Dynamic ACME wildcard TLS
 - Connection tracking + OTel tracing
 
-</v-clicks>
 
 </div>
 </div>
@@ -361,7 +349,7 @@ VERIFIED BY CODE REVIEW (not hands-on streaming tests):
 
 # SPICE Channels (11 Defined)
 
-<div v-click class="mt-2">
+<div class="mt-2">
 
 <!-- Channel heatmap: visual at a glance -->
 <div class="heatmap" style="grid-template-columns: 1.8fr repeat(4, 1fr); max-width: 600px;">
@@ -416,7 +404,7 @@ VERIFIED BY CODE REVIEW (not hands-on streaming tests):
 
 </div>
 
-<div v-click class="heatmap-legend mt-3">
+<div class="heatmap-legend mt-3">
   <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#16a34a;"></div> Works</div>
   <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#2563eb;"></div> In code (untested)</div>
   <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#d97706;"></div> Partial</div>
@@ -433,7 +421,7 @@ Channel counts from CODE REVIEW: checked which channel types each client registe
 # DMA-BUF Zero-Copy Encoding (OSVDI New)
 
 <div class="grid grid-cols-2 gap-4">
-<div v-click>
+<div>
 
 ### Traditional (QXL)
 
@@ -442,7 +430,7 @@ Guest GPU → draw cmds → CPU rasterize → encode → network
 **Latency: 50–150ms**
 
 </div>
-<div v-click>
+<div>
 
 ### GL_DRAW (OSVDI)
 
@@ -481,7 +469,7 @@ layout: section
 # Two Ground Truths
 
 <div class="grid grid-cols-2 gap-6">
-<div v-click>
+<div>
 
 <div class="status-card status-info">
 
@@ -489,18 +477,16 @@ layout: section
 
 **What would a former user of RDP expect?**
 
-<v-clicks>
 
 - FreeRDP / MS Remote Desktop: full channels, smooth experience, auto-reconnect
 - bwLehrpool (Guacamole): VNC-based, no audio, no file access — but simple and reliable
 - Expectation: everything "just works" on any device
 
-</v-clicks>
 
 </div>
 
 </div>
-<div v-click>
+<div>
 
 <div class="status-card status-success">
 
@@ -508,13 +494,11 @@ layout: section
 
 **What would a SPICE user familiar with the native client expect in web/mobile?**
 
-<v-clicks>
 
 - `remote-viewer`: all 9 channels, HW-accelerated decode, full keyboard
 - Expectation: web/mobile variants should approach native quality
 - Reality: significant gap
 
-</v-clicks>
 
 </div>
 
@@ -540,7 +524,7 @@ METHODOLOGY:
 # What Was Evaluated
 
 <div class="grid grid-cols-2 gap-6">
-<div v-click>
+<div>
 
 ### Access Variants Tested
 
@@ -557,7 +541,6 @@ METHODOLOGY:
 
 ### Aspects Evaluated
 
-<v-clicks>
 
 - Login and access gateway usability
 - Ease of use with Windows / Linux VMs
@@ -567,7 +550,6 @@ METHODOLOGY:
 - Comparison with RDP/Guacamole baseline
 - Known issues (GitLab) vs new findings
 
-</v-clicks>
 
 </div>
 </div>
@@ -604,45 +586,37 @@ layout: section
 
 ### Authentication
 
-<v-clicks>
 
 - Keycloak 26 OIDC integration — **works**
 - Login redirects handled smoothly
 - Admin vs user role distinction
 
-</v-clicks>
 
 ### Desktop Management
 
-<v-clicks>
 
 - Create / Start / Stop / Kill / Destroy — **works**
 - Grid view + Table view with filtering
 - Real-time SSE updates (no page refresh)
 
-</v-clicks>
 
 </div>
-<div v-click>
+<div>
 
 ### SPICE Launch
 
-<v-clicks>
 
 - Click "Play" → checks VM state → launches
 - Toggle: HTML5 client vs native (`spice://` URI)
 - **Redirects** browser — does NOT embed SPICE
 
-</v-clicks>
 
 ### Updated Interface (Isabela)
 
-<v-clicks>
 
 - New UI on `dev.osvdi` — not yet on demo servers
 - **Evaluation based on the demo version**
 
-</v-clicks>
 
 </div>
 </div>
@@ -656,7 +630,7 @@ Gateway tested on demo.osvdi.uni-freiburg.de. Isabela's updated UI is on dev.osv
 # Access Gateway: Issues Found
 
 <div class="grid grid-cols-2 gap-4">
-<div v-click>
+<div>
 
 ### Security Concerns
 
@@ -674,7 +648,7 @@ SSE `?access_token=...` in URL is visible in logs, browser history, and referrer
 </div>
 
 </div>
-<div v-click>
+<div>
 
 ### UX Gaps
 
@@ -729,7 +703,7 @@ layout: section
 # Native Client: What Works
 
 <div class="grid grid-cols-2 gap-4">
-<div v-click>
+<div>
 
 ### Channel Status
 
@@ -749,23 +723,19 @@ layout: section
 
 ### OSVDI Patches
 
-<v-clicks>
 
 - **Runtime codec selection UI** — switch codecs live
 - **AppImage build** — bundles GStreamer + libva
 - `alignment=au` + atomic counter (lower latency)
 
-</v-clicks>
 
 ### Distribution
 
-<v-clicks>
 
 - Pre-built **AppImage** (x86_64 Linux only) via GitLab CI
 - URI handler: `spice://`, `spice+tls://`
 - **Broken out-of-box:** missing `libva` deps, FUSE issues in WSL2, no setup guide
 
-</v-clicks>
 
 </div>
 </div>
@@ -861,7 +831,7 @@ layout: section
 </div>
 </div>
 
-<div v-click class="grid grid-cols-2 gap-4">
+<div class="grid grid-cols-2 gap-4">
 <div>
 
 **Channels:** MAIN, DISPLAY, INPUTS, CURSOR, PLAYBACK, PORT
@@ -896,7 +866,7 @@ layout: section
 </div>
 </div>
 
-<div v-click class="text-xs">
+<div class="text-xs">
 
 | Bug | Severity | Location |
 |-----|----------|----------|
@@ -920,28 +890,24 @@ layout: section
 
 ### Inherent Browser Constraints
 
-<v-clicks>
 
 - Extra latency (event loop, buffering, compositor)
 - Keyboard limited (ESC, Alt, F-keys intercepted)
 - No USB, no printing, no file system access
 - WebSocket only (no raw TCP)
 
-</v-clicks>
 
 </div>
-<div v-click>
+<div>
 
 ### What a Native SPICE User Will Notice
 
-<v-clicks>
 
 - **Missing channels:** USB, file transfer, printing, record, smartcard
 - **Keyboard quirks:** modifier desync, no dead keys
 - **No reconnection:** network blip = session lost
 - **Non-1080p broken:** H.264 hardcoded to 1920x1080
 
-</v-clicks>
 
 </div>
 </div>
@@ -1019,7 +985,7 @@ layout: section
 # Mobile Architecture
 
 <div class="grid grid-cols-2 gap-6">
-<div v-click>
+<div>
 
 ```
 ┌──────────────────────┐
@@ -1038,7 +1004,7 @@ layout: section
 Inherits **all** spice-html5 limitations plus mobile-specific issues.
 
 </div>
-<div v-click>
+<div>
 
 ### What Works (Both Platforms)
 
@@ -1060,7 +1026,7 @@ Only `INTERNET` permission. No clipboard, audio, USB, or file transfer channels.
 # Mobile: Android Issues
 
 <div class="grid grid-cols-2 gap-4">
-<div v-click>
+<div>
 
 | Issue | Severity |
 |-------|----------|
@@ -1074,7 +1040,7 @@ Only `INTERNET` permission. No clipboard, audio, USB, or file transfer channels.
 | Double-tap tracked but **never dispatched** | Medium |
 
 </div>
-<div v-click>
+<div>
 
 ### Hardcoded Config
 
@@ -1095,7 +1061,7 @@ All marked `// TODO: SharedPreferences`
 # Mobile: iOS Issues
 
 <div class="grid grid-cols-2 gap-4">
-<div v-click>
+<div>
 
 | Issue | Severity |
 |-------|----------|
@@ -1109,7 +1075,7 @@ All marked `// TODO: SharedPreferences`
 </div>
 <div>
 
-<div v-click>
+<div>
 
 ### Screen Lock = Session Death
 
@@ -1122,7 +1088,7 @@ All marked `// TODO: SharedPreferences`
 
 </div>
 
-<div v-click>
+<div>
 
 ### Two Separate Codebases
 
@@ -1323,46 +1289,38 @@ layout: section
 
 ### Server & Protocol
 
-<v-clicks>
 
 - DMA-BUF zero-copy encoding — adaptive bitrate (128K–20Mbps)
 - 14 codec types defined in protocol (future-proof)
 - SPICE routing via nginx SNI — elegant
 
-</v-clicks>
 
 ### Native Client
 
-<v-clicks>
 
 - Video decode works (HW-accel, 12 codecs in code)
 - Runtime codec switching UI, AppImage pipeline
 - Audio, clipboard, USB: in code, **testing pending**
 
-</v-clicks>
 
 </div>
-<div v-click>
+<div>
 
 ### Access Gateway
 
-<v-clicks>
 
 - Keycloak OIDC authentication
 - Real-time SSE desktop updates
 - Desktop management (CRUD) works
 
-</v-clicks>
 
 ### Infrastructure
 
-<v-clicks>
 
 - Full observability (OTel + Grafana), measurement tools ready
 - Guest agent (clipboard, USB, file transfer code complete)
 - Multiple storage backends (NFS, Ceph RBD, DNBD3)
 
-</v-clicks>
 
 </div>
 </div>
@@ -1379,11 +1337,10 @@ Infrastructure: OTel/Grafana/storage backends confirmed from docker-compose.yaml
 # What's Not Working
 
 <div class="grid grid-cols-2 gap-4">
-<div v-click>
+<div>
 
 ### Critical (Blocks Basic Usage)
 
-<v-clicks>
 
 - **spice-html5:** H.264 hardcoded 1920x1080
 - **spice-html5:** No reconnection on disconnect
@@ -1394,14 +1351,12 @@ Infrastructure: OTel/Grafana/storage backends confirmed from docker-compose.yaml
 - **Mobile:** iOS session dies on screen lock
 - **Gateway:** SSE token exposed in URL
 
-</v-clicks>
 
 </div>
-<div v-click>
+<div>
 
 ### Significant (Blocks Real Work)
 
-<v-clicks>
 
 - **spice-html5:** Modifier key desync on focus loss
 - **spice-html5:** No dead key / IME input
@@ -1413,7 +1368,6 @@ Infrastructure: OTel/Grafana/storage backends confirmed from docker-compose.yaml
 - **Gateway:** No session timeout warning
 - **Mobile:** No scroll, zoom broken, no settings
 
-</v-clicks>
 
 </div>
 </div>
@@ -1455,7 +1409,7 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
 </div>
 </div>
 
-<div v-click class="grid grid-cols-2 gap-3 text-xs">
+<div class="grid grid-cols-2 gap-3 text-xs">
 <div>
 
 | Finding | Severity |
@@ -1555,7 +1509,6 @@ QUICK WIN DETAILS:
 
 ### HTML5 Rewrite (Rafael)
 
-<v-clicks>
 
 - WebSocket reconnection logic
 - Modifier key sync on focus loss
@@ -1563,41 +1516,34 @@ QUICK WIN DETAILS:
 - Real file transfer (not UI-only)
 - Support non-1080p resolutions
 
-</v-clicks>
 
 ### Access Gateway
 
-<v-clicks>
 
 - Session timeout warning
 - SSE reconnection with backoff
 - Embed SPICE view (don't redirect)
 
-</v-clicks>
 
 </div>
-<div v-click>
+<div>
 
 ### Native Client
 
-<v-clicks>
 
 - Wire WebDAV chardev in templates
 - Multi-monitor beyond surface 0
 - macOS / Windows build pipeline
 
-</v-clicks>
 
 ### Mobile Apps
 
-<v-clicks>
 
 - Fit-to-screen scaling + visible cursor
 - Modifier key bar overlay
 - Fix pinch-to-zoom
 - iOS: session survive screen lock
 
-</v-clicks>
 
 </div>
 </div>
@@ -1611,28 +1557,24 @@ QUICK WIN DETAILS:
 
 ### Why Not Ignore Native Clients?
 
-<v-clicks>
 
 - Browser adds latency (buffering, event loop, compositor)
 - Browser limits keyboard (ESC, Alt, F-keys intercepted)
 - **Thin clients** need lightweight rendering, not a browser
 - Channels (USB, printing, security tokens) require native access
 
-</v-clicks>
 
 </div>
-<div v-click>
+<div>
 
 ### Why Browser Still Matters
 
-<v-clicks>
 
 - Zero install — immediate access
 - Cross-platform by default
 - Sufficient for casual / light use
 - Students accessing from any device
 
-</v-clicks>
 
 <div v-click class="status-card status-success mt-2" style="padding:0.4rem 0.75rem;">
 
