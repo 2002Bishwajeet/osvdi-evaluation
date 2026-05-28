@@ -39,7 +39,7 @@ exportFilename: osvdi-evaluation-presentation
 <div class="cover-decoration"></div>
 
 <div class="absolute top-8 right-10">
-<img :src="'/author.png'" class="rounded-full shadow-2xl border-3 border-cyan-400/50" style="width:90px; height:90px; object-fit:cover;" />
+<img :src="import.meta.env.BASE_URL + 'author.png'" class="rounded-full shadow-2xl border-3 border-cyan-400/50" style="width:90px; height:90px; object-fit:cover;" />
 </div>
 
 <div class="mt-4">
@@ -108,7 +108,7 @@ layout: section
 <div class="section-subtitle">Why remote access matters for universities</div>
 <div class="section-accent-line section-accent-line-1"></div>
 
-<img :src="'/cats/100.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
+<img :src="import.meta.env.BASE_URL + 'cats/100.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
 <span class="absolute bottom-2 right-8 text-xs opacity-40">HTTP 100 — Continue</span>
 
 ---
@@ -184,7 +184,7 @@ layout: section
 <div class="section-subtitle">Architecture, repositories, and protocol internals</div>
 <div class="section-accent-line section-accent-line-2"></div>
 
-<img :src="'/cats/200.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
+<img :src="import.meta.env.BASE_URL + 'cats/200.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
 <span class="absolute bottom-2 right-8 text-xs opacity-40">HTTP 200 — OK</span>
 
 ---
@@ -400,7 +400,7 @@ layout: section
 <div class="section-subtitle">Methodology, test matrix, and two ground truths</div>
 <div class="section-accent-line section-accent-line-3"></div>
 
-<img :src="'/cats/302.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
+<img :src="import.meta.env.BASE_URL + 'cats/302.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
 <span class="absolute bottom-2 right-8 text-xs opacity-40">HTTP 302 — Found</span>
 
 ---
@@ -507,7 +507,7 @@ layout: section
 <div class="section-subtitle">The first thing every user interacts with</div>
 <div class="section-accent-line section-accent-line-4"></div>
 
-<img :src="'/cats/401.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
+<img :src="import.meta.env.BASE_URL + 'cats/401.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
 <span class="absolute bottom-2 right-8 text-xs opacity-40">HTTP 401 — Unauthorized</span>
 
 ---
@@ -622,7 +622,7 @@ layout: section
 <div class="section-subtitle">The SPICE ground truth — what works fully</div>
 <div class="section-accent-line section-accent-line-5"></div>
 
-<img :src="'/cats/418.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
+<img :src="import.meta.env.BASE_URL + 'cats/418.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
 <span class="absolute bottom-2 right-8 text-xs opacity-40">HTTP 418 — I'm a Teapot</span>
 
 ---
@@ -730,7 +730,7 @@ layout: section
 <div class="section-subtitle">A 14-year-old codebase with critical bugs</div>
 <div class="section-accent-line section-accent-line-6"></div>
 
-<img :src="'/cats/500.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
+<img :src="import.meta.env.BASE_URL + 'cats/500.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
 <span class="absolute bottom-2 right-8 text-xs opacity-40">HTTP 500 — Internal Server Error</span>
 
 ---
@@ -856,7 +856,7 @@ Browsers add convenience (no install) at the cost of control. For thin-client ha
 <div class="grid grid-cols-2 gap-6">
 <div>
 
-<img :src="'/evidence/browser/grey_area_spice_html.png'" class="rounded-lg shadow-md" style="max-height:300px;" />
+<img :src="import.meta.env.BASE_URL + 'evidence/browser/grey_area_spice_html.png'" class="rounded-lg shadow-md" style="max-height:300px;" />
 
 </div>
 <div>
@@ -887,7 +887,7 @@ layout: section
 <div class="section-subtitle">Android & iOS — thin WebView wrappers over spice-html5</div>
 <div class="section-accent-line section-accent-line-7"></div>
 
-<img :src="'/cats/404.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
+<img :src="import.meta.env.BASE_URL + 'cats/404.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
 <span class="absolute bottom-2 right-8 text-xs opacity-40">HTTP 404 — Not Found</span>
 
 ---
@@ -1038,7 +1038,7 @@ Expected:                    Actual:
 <div class="grid grid-cols-3 gap-4">
 <div class="text-center">
 
-<img :src="'/evidence/ios/taskbar_not_visible.png'" class="rounded-lg shadow-md" style="max-height:220px; margin:0 auto;" />
+<img :src="import.meta.env.BASE_URL + 'evidence/ios/taskbar_not_visible.png'" class="rounded-lg shadow-md" style="max-height:220px; margin:0 auto;" />
 
 <div class="text-xs mt-2 font-semibold">iOS: Taskbar cropped, gray bars</div>
 <div class="text-xs opacity-60">Wasted screen space, bottom UI unreachable</div>
@@ -1046,7 +1046,7 @@ Expected:                    Actual:
 </div>
 <div class="text-center">
 
-<img :src="'/evidence/android/missing_mouse_pointer_and_cropped_screen.png'" class="rounded-lg shadow-md" style="max-height:220px; margin:0 auto;" />
+<img :src="import.meta.env.BASE_URL + 'evidence/android/missing_mouse_pointer_and_cropped_screen.png'" class="rounded-lg shadow-md" style="max-height:220px; margin:0 auto;" />
 
 <div class="text-xs mt-2 font-semibold">Android: Screen cropped, no cursor</div>
 <div class="text-xs opacity-60">Content unreachable beyond viewport edge</div>
@@ -1054,7 +1054,7 @@ Expected:                    Actual:
 </div>
 <div class="text-center">
 
-<img :src="'/evidence/ios/forever_loading_onBack_flaky.png'" class="rounded-lg shadow-md" style="max-height:220px; margin:0 auto;" />
+<img :src="import.meta.env.BASE_URL + 'evidence/ios/forever_loading_onBack_flaky.png'" class="rounded-lg shadow-md" style="max-height:220px; margin:0 auto;" />
 
 <div class="text-xs mt-2 font-semibold">iOS: Infinite loading after screen lock</div>
 <div class="text-xs opacity-60">WKWebView loses state — must force-quit</div>
@@ -1072,7 +1072,7 @@ layout: section
 <div class="section-subtitle">Channels, keyboard, and codecs across all access methods</div>
 <div class="section-accent-line section-accent-line-8"></div>
 
-<img :src="'/cats/300.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
+<img :src="import.meta.env.BASE_URL + 'cats/300.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
 <span class="absolute bottom-2 right-8 text-xs opacity-40">HTTP 300 — Multiple Choices</span>
 
 ---
@@ -1184,7 +1184,7 @@ layout: section
 <div class="section-subtitle">What works, what doesn't, and what's new vs. known</div>
 <div class="section-accent-line section-accent-line-9"></div>
 
-<img :src="'/cats/206.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
+<img :src="import.meta.env.BASE_URL + 'cats/206.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
 <span class="absolute bottom-2 right-8 text-xs opacity-40">HTTP 206 — Partial Content</span>
 
 ---
@@ -1345,7 +1345,7 @@ layout: section
 <div class="section-subtitle">What needs to be done and in what order</div>
 <div class="section-accent-line section-accent-line-10"></div>
 
-<img :src="'/cats/102.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
+<img :src="import.meta.env.BASE_URL + 'cats/102.jpg'" class="absolute bottom-4 right-8 rounded-lg opacity-80 shadow-xl" style="height:200px;" />
 <span class="absolute bottom-2 right-8 text-xs opacity-40">HTTP 102 — Processing</span>
 
 ---
@@ -1588,7 +1588,7 @@ layout: center
 class: text-center
 ---
 
-<img :src="'/author.png'" class="rounded-full mx-auto mb-4 shadow-lg" style="width:100px; height:100px; object-fit:cover;" />
+<img :src="import.meta.env.BASE_URL + 'author.png'" class="rounded-full mx-auto mb-4 shadow-lg" style="width:100px; height:100px; object-fit:cover;" />
 
 <div class="thankyou-title">Thank You</div>
 
