@@ -147,26 +147,16 @@ Every competitor provides toggleable modifier keys in the toolbar or above the o
 
 A detailed comparison with 6 industry-leading remote desktop apps (TeamViewer, AnyDesk, RustDesk, Microsoft RD Client, Chrome Remote Desktop, Citrix Workspace) is available in **[accessibility-evaluation.md](accessibility-evaluation.md)**.
 
-### Summary Scores
+### Scores by Tier
 
-| Category | OSVDI Android | OSVDI iOS | Industry Standard |
-|----------|---------------|-----------|-------------------|
-| Touch & gestures | 4 / 10 | 4 / 10 | 10 / 10 |
-| Screen & viewport | 0 / 6 | 1 / 6 | 6 / 6 |
-| Cursor handling | 0 / 4 | 1 / 4 | 4 / 4 |
-| Keyboard & controls | 2 / 6 | 2 / 6 | 6 / 6 |
-| Toolbar & feedback | 2 / 4 | 4 / 4 | 4 / 4 |
-| **Total** | **8 / 30 (27%)** | **13 / 30 (43%)** | **30 / 30** |
+| Tier | OSVDI Android | OSVDI iOS | What it means |
+|------|---------------|-----------|---------------|
+| **MVP** (must-have) | 2 / 18 (11%) | 5 / 18 (28%) | App is usable for basic remote desktop |
+| **Enhanced** (comfortable) | 8 / 18 (44%) | 10 / 18 (56%) | Productive for real daily work |
+| **Premium** (competitive) | 0 / 14 (0%) | 0 / 14 (0%) | On par with TeamViewer / AnyDesk |
+| **Overall** | **10 / 50 (20%)** | **15 / 50 (30%)** | |
 
-### What's Done, What Needs Work
-
-| Category | Done | Needs Work |
-|----------|------|------------|
-| **Touch** | Tap, drag, right-click, long-press drag | Two-finger scroll, zoom, pan, touch mode toggle |
-| **Screen** | Basic WebView loading | Fit-to-screen, zoom, orientation choice |
-| **Cursor** | iOS partial overlay | Android visibility, proper styling |
-| **Keyboard** | Text input, keyboard toggle | Modifier keys, function keys |
-| **Toolbar** | Floating overlay exists | Expand with Ctrl/Alt/Fn buttons |
+Neither platform meets the MVP bar today. See Section 6 for the full tier breakdown and roadmap.
 
 ---
 
@@ -198,33 +188,94 @@ A detailed comparison with 6 industry-leading remote desktop apps (TeamViewer, A
 
 ---
 
-## 6. Improvement Roadmap
+## 6. Feature Tiers & MVP Definition
 
-### Immediate (Low Effort, High Impact)
+Features are categorized into three tiers. The **MVP** is the minimum bar for the app to be usable by any user — without these, the app is broken for basic remote desktop work.
 
-| Improvement | Android | iOS | Effort |
-|-------------|---------|-----|--------|
-| **Fix screen scaling** — fit remote desktop to device viewport | CSS transform or viewport meta | Already partial | Medium |
-| **Fix cursor visibility** — debug JS cursor overlay rendering | Debug touchToMouseScript.js | Already working (partial) | Low |
-| **Fix pinch-to-zoom** — ScaleGestureDetector is wired but broken | Fix scaling math | Already partial | Low |
-| **Add modifier key bar** — Ctrl, Alt, Shift, Esc toggle buttons | Extend overlay UI | Extend overlay UI | Medium |
+### Tier 1: MVP (Must-Have) — "Users can actually use the remote desktop"
 
+Without these, the app is not functional enough to ship. Every competing app has all of these.
 
-### Medium-Term
+| Feature | Android | iOS | Effort | Why MVP |
+|---------|---------|-----|--------|---------|
+| **Fit-to-screen scaling** | Missing — cropped | Partial — taskbar cut off | Medium | Cannot see the full remote desktop |
+| **Visible mouse cursor** | Missing | Partial (JS overlay) | Low | Cannot see where you're pointing |
+| **Tap repositions cursor** | Missing — must drag to target | Missing — must drag to target | Medium | Every tap requires a drag first, unusable |
+| **Pinch-to-zoom** | Broken (TODO) | Partial (0.5x–1.0x) | Medium | Cannot read small text or click small buttons |
+| **Two-finger pan when zoomed** | Missing | Missing | Medium | Zoom is useless without pan |
+| **Modifier keys (Ctrl, Alt, Shift, Esc)** | Missing | Missing | Medium | Cannot copy/paste, switch windows, or use shortcuts |
+| **Back/home navigation** | Missing — trapped in session | Working | Low | No way to exit SPICE session on Android |
+| **Session survives screen lock** | N/A | Missing — infinite loading | Medium | Locking phone kills the session, requires force-quit |
+| **Orientation choice** | Forced landscape | Forced landscape | Low | Cannot use portrait for vertical content |
 
-1. **Two-finger scroll** — Map two-finger vertical drag to scroll wheel events
-2. **Two-finger pan** — Viewport panning when zoomed in
-3. **Touch mode toggle** — Direct touch vs trackpad-style cursor control
-4. **Clipboard bridge** — Platform clipboard API + JavaScript Clipboard API
-5. **On-screen modifier/function key layouts** — Custom overlays for Ctrl, Alt, F1-F12
-6. **Unify JavaScript bridges** — Single source of truth for touchToMouseScript.js
+**MVP score: Android 0/9, iOS 3/9** — neither platform meets the minimum usable bar today.
 
-### Long-Term / Architectural
+### Tier 2: Enhanced — "Users can work comfortably"
 
-1. **Performance instrumentation** — Round-trip latency measurement overlay
-2. **Native SPICE client integration** — For scenarios where WebView overhead is unacceptable
-3. **Background behavior** — Handle app switching without dropping SPICE connection
-4. **Offline/reconnection** — Graceful network drop handling with session resume
+These make the app feel like a proper remote desktop tool, not a proof of concept. Expected by power users and anyone using the app for real work.
+
+| Feature | Android | iOS | Effort | Why Enhanced |
+|---------|---------|-----|--------|-------------|
+| **Two-finger scroll** (mouse wheel) | Missing | Missing | Medium | Cannot scroll web pages or documents |
+| **Touch mode toggle** (direct ↔ trackpad) | Missing | Missing | Medium | Power users need trackpad-style cursor control |
+| **Function keys** (F1–F12, Esc) | Missing | Missing | Low | Needed for terminal, IDE, system shortcuts |
+| **Clipboard/copy-paste** | Missing | Missing | Medium | Basic productivity workflow |
+| **Haptic feedback** | JS bridge exists, no handler | Working | Low | Tactile confirmation of clicks and mode changes |
+| **Settings/preferences UI** | Missing (hardcoded) | Partial | Low | Users need to configure cursor speed, default URL, etc. |
+| **Zoom persistence** | N/A | N/A | Low | Zoom resets on keyboard show/hide |
+| **Gesture help/onboarding** | Missing | Missing | Low | New users can't discover available gestures |
+| **CI/CD pipeline** | Working | Missing | Low-Medium | iOS has no build automation |
+| **Internationalization** | 15 languages | English only | Low | iOS unusable for non-English users |
+
+### Tier 3: Premium — "Competitive with TeamViewer/AnyDesk"
+
+Nice-to-have features that differentiate from competitors. Not needed for basic usability but add real value for specific use cases.
+
+| Feature | Android | iOS | Effort | Why Premium |
+|---------|---------|-----|--------|-------------|
+| **Audio channel** (bidirectional) | Missing | Missing | High | Conferencing, media playback |
+| **File transfer** | Missing | Missing | High | Move files to/from VM |
+| **Three-finger middle click** | Missing | Missing | Low | Niche but useful for Linux power users |
+| **Auto-keyboard on focus** | Missing | Missing | Medium | Detect editable fields, auto-show keyboard |
+| **Remote cursor matching** | Missing | Missing | Medium | Show actual remote cursor shape (text, resize, etc.) |
+| **Cursor size/speed adjust** | Missing | Missing | Low | Accessibility for users who need larger cursor |
+| **Gesture customization** | Missing | Missing | Medium | Remap finger counts to different actions |
+| **Multi-monitor/desktop mode** | Missing | Missing | High | External display, phone as trackpad |
+| **Performance metrics overlay** | Missing | Missing | Medium | Show FPS, latency, codec info |
+| **USB redirection** | Impossible via WebView | Impossible via WebView | Very High | Requires native SPICE client |
+| **Printing** | Impossible via WebView | Impossible via WebView | Very High | Requires native SPICE client |
+| **Native SPICE rendering** | Missing | Missing | Very High | Bypass WebView entirely for lower latency |
+
+### MVP Roadmap
+
+```
+Phase 1: Make it usable (MVP)                    ~4-6 weeks
+├── Fix screen scaling (fit-to-screen)
+├── Fix cursor visibility (Android)
+├── Tap repositions cursor (direct touch mode)
+├── Fix pinch-to-zoom + add two-finger pan
+├── Add modifier key bar (Ctrl, Alt, Shift, Esc)
+├── Add back navigation button (Android)
+├── Fix session survival on screen lock (iOS)
+└── Allow portrait + landscape orientation
+
+Phase 2: Make it comfortable (Enhanced)           ~4-6 weeks
+├── Two-finger scroll (mouse wheel)
+├── Touch mode toggle (direct ↔ trackpad)
+├── Function keys (F1-F12)
+├── Clipboard bridge (copy/paste)
+├── Haptic handler (Android)
+├── Settings UI
+├── Gesture onboarding
+└── iOS CI/CD + i18n
+
+Phase 3: Make it competitive (Premium)            ongoing
+├── Audio channel
+├── File transfer
+├── Performance overlay
+├── Advanced cursor features
+└── Evaluate native SPICE rendering
+```
 
 ---
 

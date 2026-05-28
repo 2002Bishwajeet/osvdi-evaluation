@@ -62,39 +62,61 @@ The "Industry Standard" column represents what **all or most** of the 6 referenc
 
 ## 2. Gap Summary
 
-### Completeness Score
+### Completeness by Tier
 
 Scoring: Implemented = 2, Partial = 1, Missing = 0
 
-| Feature | Needed? | OSVDI Android | OSVDI iOS |
-|---------|---------|---------------|-----------|
-| Fit-to-screen scaling | Required | 0 | 1 |
-| Pinch-to-zoom | Required | 0 | 1 |
-| Pan when zoomed | Required | 0 | 0 |
-| Visible cursor | Required | 0 | 1 |
-| Two-finger scroll | Required | 0 | 0 |
-| Two-finger right-click | Required | 2 | 2 |
-| Long-press drag | Expected | 2 | 2 |
-| Modifier keys (Ctrl, Alt, etc.) | Required | 0 | 0 |
-| Function keys (F1–F12, Esc) | Required | 0 | 0 |
-| Touch mode toggle | Expected | 0 | 0 |
-| Orientation choice | Expected | 0 | 0 |
-| Keyboard trigger button | Required | 2 | 2 |
-| Floating toolbar | Expected | 2 | 2 |
-| Haptic feedback | Nice-to-have | 0 | 2 |
-| Gesture help/onboarding | Nice-to-have | 0 | 0 |
-| **Total** | **30 max** | **8 / 30 (27%)** | **13 / 30 (43%)** |
+#### MVP (Must-Have) — app is broken without these
 
-### What's Done, What's Needed, What's Missing
+| Feature | OSVDI Android | OSVDI iOS |
+|---------|---------------|-----------|
+| Fit-to-screen scaling | 0 | 1 |
+| Visible cursor | 0 | 1 |
+| Tap repositions cursor | 0 | 0 |
+| Pinch-to-zoom | 0 | 1 |
+| Pan when zoomed | 0 | 0 |
+| Modifier keys (Ctrl, Alt, Shift, Esc) | 0 | 0 |
+| Back/home navigation | 0 | 2 |
+| Session survives screen lock | 2 | 0 |
+| Orientation choice | 0 | 0 |
+| **MVP Total** | **2 / 18 (11%)** | **5 / 18 (28%)** |
 
-| Category | Done | Needs Work | Nice-to-Have |
-|----------|------|------------|--------------|
-| **Touch input** | Tap, drag, right-click, long-press drag | Two-finger scroll, pinch-to-zoom (Android), pan, touch mode toggle | Three-finger middle click |
-| **Screen** | Basic WebView loading | Fit-to-screen scaling, zoom, zoom persistence, orientation choice | 1:1 pixel mode, resolution adaptation |
-| **Cursor** | iOS has partial overlay | Android cursor visibility, proper cursor styling | Size adjust, context matching |
-| **Keyboard** | Basic text input, keyboard toggle | Modifier keys, function keys | Auto-keyboard on focus |
-| **Toolbar** | Floating overlay exists | Expand with modifier/Fn buttons | Gesture guide, movable toolbar (iOS) |
-| **Feedback** | iOS haptics | Android haptic handler | — |
+#### Enhanced — comfortable for real work
+
+| Feature | OSVDI Android | OSVDI iOS |
+|---------|---------------|-----------|
+| Two-finger scroll | 0 | 0 |
+| Two-finger right-click | 2 | 2 |
+| Long-press drag | 2 | 2 |
+| Touch mode toggle | 0 | 0 |
+| Function keys (F1–F12, Esc) | 0 | 0 |
+| Keyboard trigger button | 2 | 2 |
+| Floating toolbar | 2 | 2 |
+| Haptic feedback | 0 | 2 |
+| Gesture help/onboarding | 0 | 0 |
+| **Enhanced Total** | **8 / 18 (44%)** | **10 / 18 (56%)** |
+
+#### Premium — competitive with industry leaders
+
+| Feature | OSVDI Android | OSVDI iOS |
+|---------|---------------|-----------|
+| Cursor size/speed adjust | 0 | 0 |
+| Remote cursor matching | 0 | 0 |
+| Auto-keyboard on focus | 0 | 0 |
+| Gesture customization | 0 | 0 |
+| 1:1 pixel mode | 0 | 0 |
+| Resolution adaptation | 0 | 0 |
+| Three-finger middle click | 0 | 0 |
+| **Premium Total** | **0 / 14 (0%)** | **0 / 14 (0%)** |
+
+### Summary
+
+| Tier | Android | iOS | What it means |
+|------|---------|-----|---------------|
+| **MVP** | 2 / 18 (11%) | 5 / 18 (28%) | App is usable for basic remote desktop |
+| **Enhanced** | 8 / 18 (44%) | 10 / 18 (56%) | Comfortable for real daily work |
+| **Premium** | 0 / 14 (0%) | 0 / 14 (0%) | Competitive with TeamViewer/AnyDesk |
+| **Overall** | **10 / 50 (20%)** | **15 / 50 (30%)** | |
 
 ---
 
