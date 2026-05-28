@@ -1218,6 +1218,60 @@ Expected:                    Actual:
 </div>
 
 ---
+
+# Mobile: Industry Comparison
+
+<div class="text-sm font-semibold mb-2 opacity-60">OSVDI vs what every competing app supports (TeamViewer, AnyDesk, RustDesk, MS RD Client, Citrix)</div>
+
+<div class="heatmap" style="grid-template-columns: 2.2fr repeat(3, 1fr); max-width: 600px;">
+  <div class="heatmap-header"></div>
+  <div class="heatmap-header">Industry</div>
+  <div class="heatmap-header">Android</div>
+  <div class="heatmap-header">iOS</div>
+
+  <div class="heatmap-row-label">Touch modes (direct + trackpad)</div>
+  <div class="heatmap-cell heat-full">2+ modes</div>
+  <div class="heatmap-cell heat-none">1 only</div>
+  <div class="heatmap-cell heat-none">1 only</div>
+
+  <div class="heatmap-row-label">Pinch-to-zoom + pan</div>
+  <div class="heatmap-cell heat-full">Universal</div>
+  <div class="heatmap-cell heat-none">Broken</div>
+  <div class="heatmap-cell heat-partial">0.5–1x</div>
+
+  <div class="heatmap-row-label">Fit-to-screen on connect</div>
+  <div class="heatmap-cell heat-full">Default</div>
+  <div class="heatmap-cell heat-none">Cropped</div>
+  <div class="heatmap-cell heat-partial">Gray bars</div>
+
+  <div class="heatmap-row-label">Cursor visible in mouse mode</div>
+  <div class="heatmap-cell heat-full">Always</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-partial">JS dot</div>
+
+  <div class="heatmap-row-label">Modifier keys (Ctrl, Alt, Shift)</div>
+  <div class="heatmap-cell heat-full">Toolbar</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-none">✗</div>
+
+  <div class="heatmap-row-label">Session reconnect on resume</div>
+  <div class="heatmap-cell heat-full">Auto</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-none">Dead</div>
+</div>
+
+<div class="heatmap-legend mt-2">
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#16a34a;"></div> Industry standard</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#d97706;"></div> Partial</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#dc2626;"></div> Missing</div>
+</div>
+
+<!--
+Full industry comparison: accessibility-evaluation.md
+Compared against: TeamViewer, AnyDesk, RustDesk, Microsoft RD Client, Chrome Remote Desktop, Citrix Workspace
+-->
+
+---
 layout: section
 ---
 
@@ -1717,28 +1771,65 @@ Feed these findings as **requirements**:
 
 # Roadmap
 
-```mermaid {scale: 0.65}
-gantt
-  title Improvement Phases
-  dateFormat YYYY-MM-DD
-  axisFormat %b %d
-  section Quick Wins (~1-2 wks)
-    WebDAV chardev + SSE fix :a1, 2026-06-01, 5d
-    Mobile tap-to-click      :a2, 2026-06-03, 5d
-    Android back button      :a3, 2026-06-03, 3d
-  section HTML5 Rewrite Requirements
-    Feed bugs to Rafael      :b1, 2026-06-09, 7d
-    Coordinate on API needs  :b2, 2026-06-16, 7d
-  section Mobile MVP (~4-6 wks)
-    Screen scaling + cursor  :c1, 2026-06-09, 14d
-    Modifier key bar         :c2, 2026-06-16, 14d
-    Pinch-zoom + pan         :c3, 2026-06-23, 14d
-    iOS session survival     :c4, 2026-06-23, 10d
-  section Native + Gateway
-    Multi-monitor fix        :d1, 2026-07-14, 21d
-    Gateway UX improvements  :d2, 2026-07-14, 14d
-    macOS/Windows builds     :d3, 2026-08-01, 28d
-```
+<div class="text-xs">
+
+<div class="flex items-center gap-2 mb-3">
+  <div class="text-sm font-bold opacity-50">Jun</div>
+  <div class="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+  <div class="text-sm font-bold opacity-50">Jul</div>
+  <div class="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+  <div class="text-sm font-bold opacity-50">Aug</div>
+  <div class="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+  <div class="text-sm font-bold opacity-50">Sep</div>
+</div>
+
+<div class="mb-3">
+<div class="font-bold text-green-500 mb-1">Phase 1: Quick Wins (1–2 weeks)</div>
+<div class="flex gap-1 mb-1">
+  <div class="rounded px-2 py-0.5 text-white" style="background:#16a34a; width:15%;">WebDAV chardev</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#22c55e; width:15%;">SSE token fix</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#4ade80; color:#000; width:12%;">Back button</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#86efac; color:#000; width:15%;">Tap-to-click</div>
+</div>
+</div>
+
+<div class="mb-3">
+<div class="font-bold text-blue-500 mb-1">Phase 2: HTML5 Rewrite Handoff (2 weeks)</div>
+<div class="flex gap-1 mb-1">
+  <div style="width:15%;"></div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#2563eb; width:20%;">Feed bugs to Rafael</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#3b82f6; width:18%;">Coordinate API needs</div>
+</div>
+</div>
+
+<div class="mb-3">
+<div class="font-bold text-purple-500 mb-1">Phase 3: Mobile MVP (4–6 weeks)</div>
+<div class="flex gap-1 mb-1">
+  <div style="width:10%;"></div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#7c3aed; width:25%;">Screen scaling + cursor</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#8b5cf6; width:22%;">Modifier key bar</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#a78bfa; color:#000; width:18%;">Pinch-zoom</div>
+</div>
+<div class="flex gap-1">
+  <div style="width:18%;"></div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#6d28d9; width:18%;">iOS session fix</div>
+</div>
+</div>
+
+<div class="mb-1">
+<div class="font-bold text-amber-500 mb-1">Phase 4: Native + Gateway (6–12 weeks)</div>
+<div class="flex gap-1 mb-1">
+  <div style="width:40%;"></div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#d97706; width:25%;">Multi-monitor fix</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#f59e0b; color:#000; width:30%;">macOS / Windows builds</div>
+</div>
+<div class="flex gap-1">
+  <div style="width:40%;"></div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#b45309; width:20%;">Gateway UX</div>
+</div>
+</div>
+
+</div>
 
 ---
 
