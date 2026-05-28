@@ -1772,6 +1772,79 @@ gantt
 | Thin client hardware can't run browser | Native client is the only option |
 
 ---
+
+# Mobile: Cross-Platform Strategy
+
+<div class="grid grid-cols-2 gap-4">
+<div>
+
+<div class="text-sm font-semibold mb-2 opacity-60">Current: 2 codebases → not sustainable</div>
+
+<div class="heatmap" style="grid-template-columns: 2fr repeat(3, 1fr); max-width: 480px;">
+  <div class="heatmap-header"></div>
+  <div class="heatmap-header">Separate</div>
+  <div class="heatmap-header">Flutter</div>
+  <div class="heatmap-header">KMP</div>
+
+  <div class="heatmap-row-label">Android + iOS</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Desktop (Win/Mac/Linux)</div>
+  <div class="heatmap-cell heat-none">3 more repos</div>
+  <div class="heatmap-cell heat-full">Built-in</div>
+  <div class="heatmap-cell heat-partial">Partial</div>
+
+  <div class="heatmap-row-label">WebView support</div>
+  <div class="heatmap-cell heat-full">Native</div>
+  <div class="heatmap-cell heat-full">Plugin</div>
+  <div class="heatmap-cell heat-none">None</div>
+
+  <div class="heatmap-row-label">Shared codebase</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">1 repo</div>
+  <div class="heatmap-cell heat-partial">Logic only</div>
+
+  <div class="heatmap-row-label">Thin-client friendly</div>
+  <div class="heatmap-cell heat-partial">Varies</div>
+  <div class="heatmap-cell heat-full">AOT native</div>
+  <div class="heatmap-cell heat-full">JVM/native</div>
+</div>
+
+</div>
+<div>
+
+<div class="status-card status-info" style="padding:0.5rem 0.8rem;">
+
+**Conditional recommendation: Flutter + WebView**
+
+If WebView latency < 80ms → single codebase for all 6 platforms. JS bridges transfer directly, native channels via platform channels.
+
+</div>
+
+<div class="text-xs mt-2 opacity-80">
+
+**Migration:** Flutter foundation (mobile parity) → desktop expansion → advanced channels → optimization
+
+</div>
+
+<div class="status-card status-warn mt-2" style="padding:0.3rem 0.8rem;">
+
+**Blocker:** need WebView latency benchmarks. If > 80ms → FFI to libspice-gtk instead.
+
+</div>
+
+</div>
+</div>
+
+<!--
+Full analysis: cross-platform-strategy.md
+Flutter chosen over KMP because: unified WebView component across all platforms, AOT compilation for thin clients, desktop support more mature, hot reload for rapid dev. KMP lacks a multiplatform WebView component entirely.
+Conditional on latency: if WebView adds >80ms, the whole approach fails and native rendering via FFI to libspice-gtk is needed instead.
+-->
+
+---
 layout: center
 class: text-center
 ---
