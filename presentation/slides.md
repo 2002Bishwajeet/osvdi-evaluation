@@ -1406,6 +1406,7 @@ Infrastructure: OTel/Grafana/storage backends confirmed from docker-compose.yaml
 - **spice-html5:** Modifier key desync on focus loss
 - **spice-html5:** No dead key / IME input
 - **Server:** Only 4 of 14 codecs encoded
+- **Server:** No H.265/AV1 encoding despite protocol support
 - **Native:** File transfer not wired (missing chardev)
 - **Native:** Multi-monitor limited to surface 0
 - **Native:** Linux-only — no macOS / Windows builds

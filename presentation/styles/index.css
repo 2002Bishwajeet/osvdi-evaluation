@@ -495,29 +495,3 @@ html.dark .heat-impossible { background: #1f2937; color: #6b7280; }
   border-radius: 0.2rem;
 }
 
-/* ─── Animated Counter ─── */
-
-@keyframes countPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-.stat-pulse {
-  animation: countPulse 2s ease-in-out infinite;
-}
-
-/* ─── Slide-specific overrides ─── */
-
-.slidev-vclick-hidden {
-  pointer-events: none;
-}
-
-/* Compact table for v-click slides */
-.compact-table table {
-  font-size: 0.78em;
-}
-
-.compact-table table td,
-.compact-table table th {
-  padding: 0.25rem 0.5rem;
-}
