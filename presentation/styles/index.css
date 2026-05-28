@@ -534,6 +534,8 @@ html.dark .gauge-track {
   font-size: 0.6rem;
   font-weight: 700;
   color: white;
+  white-space: nowrap;
+  overflow: hidden;
   transition: width 0.6s ease;
 }
 

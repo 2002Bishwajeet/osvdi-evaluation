@@ -304,15 +304,15 @@ graph LR
 </div>
 <div v-click class="funnel-arrow">→</div>
 <div v-click class="funnel-step">
-  <div class="funnel-number text-amber-500">4</div>
-  <div class="funnel-label">Server</div>
-  <div class="funnel-sublabel">Encodes</div>
+  <div class="funnel-number text-green-500">12</div>
+  <div class="funnel-label">Native</div>
+  <div class="funnel-sublabel">Can decode</div>
 </div>
 <div v-click class="funnel-arrow">→</div>
 <div v-click class="funnel-step">
-  <div class="funnel-number text-green-500">12</div>
-  <div class="funnel-label">Native</div>
-  <div class="funnel-sublabel">Decodes</div>
+  <div class="funnel-number text-amber-500">4</div>
+  <div class="funnel-label">Server</div>
+  <div class="funnel-sublabel">Encodes today</div>
 </div>
 <div v-click class="funnel-arrow">→</div>
 <div v-click class="funnel-step">
@@ -674,23 +674,23 @@ SSE `?access_token=...` in URL is visible in logs, browser history, and referrer
 
 <div class="gauge-row">
   <div class="gauge-label">Connect</div>
-  <div class="gauge-track"><div class="gauge-mid" style="width:40%;">VM start first</div></div>
+  <div class="gauge-track"><div class="gauge-fill gauge-mid" style="width:40%;">VM start first</div></div>
 </div>
 <div class="gauge-row">
   <div class="gauge-label">Credentials</div>
-  <div class="gauge-track"><div class="gauge-full" style="width:95%;">Keycloak SSO</div></div>
+  <div class="gauge-track"><div class="gauge-fill gauge-full" style="width:95%;">Keycloak SSO</div></div>
 </div>
 <div class="gauge-row">
   <div class="gauge-label">MFA</div>
-  <div class="gauge-track"><div class="gauge-full" style="width:100%;">Keycloak</div></div>
+  <div class="gauge-track"><div class="gauge-fill gauge-full" style="width:100%;">Keycloak</div></div>
 </div>
 <div class="gauge-row">
   <div class="gauge-label">Embed view</div>
-  <div class="gauge-track"><div class="gauge-low" style="width:10%;"></div></div>
+  <div class="gauge-track"><div class="gauge-fill gauge-low" style="width:10%;"></div></div>
 </div>
 <div class="gauge-row">
   <div class="gauge-label">Mobile UI</div>
-  <div class="gauge-track"><div class="gauge-high" style="width:70%;">Responsive</div></div>
+  <div class="gauge-track"><div class="gauge-fill gauge-high" style="width:70%;">Responsive</div></div>
 </div>
 
 <div class="text-xs opacity-40 mt-1">Full bar = FreeRDP baseline</div>
@@ -807,56 +807,56 @@ TESTING NOTES:
 
 # Native Client: RDP Comparison
 
-<div class="grid grid-cols-2 gap-6">
-<div>
+<div class="text-sm font-semibold mb-2 opacity-60">OSVDI Native vs FreeRDP (full bar = parity)</div>
 
-<div class="text-sm font-semibold mb-2 opacity-60">OSVDI Native vs FreeRDP (full = parity)</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
 
 <div class="gauge-row">
   <div class="gauge-label">Video (HW)</div>
-  <div class="gauge-track"><div class="gauge-full" style="width:100%;">Parity</div></div>
+  <div class="gauge-track"><div class="gauge-fill gauge-full" style="width:100%;">Parity</div></div>
 </div>
 <div class="gauge-row">
   <div class="gauge-label">Audio/Clip/USB</div>
-  <div class="gauge-track"><div class="gauge-high" style="width:50%;">In code, untested</div></div>
+  <div class="gauge-track"><div class="gauge-fill gauge-high" style="width:50%;">In code</div></div>
 </div>
 <div class="gauge-row">
   <div class="gauge-label">File transfer</div>
-  <div class="gauge-track"><div class="gauge-mid" style="width:85%;">chardev fix</div></div>
+  <div class="gauge-track"><div class="gauge-fill gauge-mid" style="width:85%;">chardev fix</div></div>
 </div>
 <div class="gauge-row">
   <div class="gauge-label">Printing</div>
-  <div class="gauge-track"><div class="gauge-low" style="width:3%;"></div></div>
+  <div class="gauge-track"><div class="gauge-fill gauge-low" style="width:3%;"></div></div>
 </div>
-<div class="gauge-row">
-  <div class="gauge-label">Multi-monitor</div>
-  <div class="gauge-track"><div class="gauge-mid" style="width:30%;">Surface 0</div></div>
-</div>
-<div class="gauge-row">
-  <div class="gauge-label">Cross-platform</div>
-  <div class="gauge-track"><div class="gauge-low" style="width:33%;">Linux only</div></div>
-</div>
-<div class="gauge-row">
-  <div class="gauge-label">Install UX</div>
-  <div class="gauge-track"><div class="gauge-low" style="width:20%;">Manual deps</div></div>
-</div>
-
-<div class="text-xs opacity-40 mt-1">Full bar = FreeRDP baseline</div>
 
 </div>
 <div>
 
-<div class="status-card status-warn" style="padding:0.5rem 0.75rem;">
-
-Audio, clipboard, USB in spice-gtk code but **not confirmed end-to-end**. Manual `libva` dep install — no setup guide.
-
+<div class="gauge-row">
+  <div class="gauge-label">Multi-monitor</div>
+  <div class="gauge-track"><div class="gauge-fill gauge-mid" style="width:30%;">Surface 0</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Cross-platform</div>
+  <div class="gauge-track"><div class="gauge-fill gauge-low" style="width:33%;">Linux only</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Install UX</div>
+  <div class="gauge-track"><div class="gauge-fill gauge-low" style="width:20%;"></div></div>
 </div>
 
-<div class="status-card status-success mt-2" style="padding:0.5rem 0.75rem;">
+</div>
+</div>
 
-**Bright spot:** Video is at full parity — HW-accelerated, 12 codec decoders. File transfer needs only a 1-line config fix.
+<div class="grid grid-cols-2 gap-4 mt-2">
+<div class="status-card status-warn" style="padding:0.4rem 0.75rem;">
+
+Audio/clipboard/USB **not confirmed end-to-end**. Manual `libva` dep install — no setup guide.
 
 </div>
+<div class="status-card status-success" style="padding:0.4rem 0.75rem;">
+
+**Bright spot:** Video at full parity. File transfer needs only a 1-line chardev config fix.
 
 </div>
 </div>
@@ -924,7 +924,7 @@ layout: section
 </div>
 <div class="text-center p-2 rounded-xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800">
   <div class="hero-stat" style="font-size:2.2rem; background:linear-gradient(135deg,#d97706,#fbbf24); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">0</div>
-  <div class="hero-stat-label" style="font-size:0.65rem;">In GitLab</div>
+  <div class="hero-stat-label" style="font-size:0.65rem;">Tracked</div>
 </div>
 </div>
 
@@ -1647,30 +1647,27 @@ QUICK WIN DETAILS:
 
 ### HTML5 Rewrite (Rafael)
 
-
+Feed these findings as **requirements**:
 - WebSocket reconnection logic
 - Modifier key sync on focus loss
 - Dead key / IME support
 - Real file transfer (not UI-only)
+- Image cache eviction
 - Support non-1080p resolutions
 
-
 ### Access Gateway
-
-
 - Session timeout warning
 - SSE reconnection with backoff
 - Embed SPICE view (don't redirect)
-
+- Clipboard / file transfer UI
 
 </div>
 <div>
 
 ### Native Client
-
-
 - Wire WebDAV chardev in templates
 - Multi-monitor beyond surface 0
+- Adaptive quality UI (not just env var)
 - macOS / Windows build pipeline
 
 
