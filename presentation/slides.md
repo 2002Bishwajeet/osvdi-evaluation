@@ -33,7 +33,6 @@ themeConfig:
   paginationPagesDisabled: [1]
 transition: slide-left
 mdc: true
-download: true
 exportFilename: osvdi-evaluation-presentation
 ---
 
