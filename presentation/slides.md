@@ -667,15 +667,18 @@ SSE `?access_token=...` in URL is visible in logs, browser history, and referrer
 
 # Access Gateway: RDP Baseline Comparison
 
-<div class="text-sm font-semibold mb-1 opacity-60">UX Parity with RDP / Guacamole</div>
+<div class="grid grid-cols-2 gap-6">
+<div>
+
+<div class="text-sm font-semibold mb-2 opacity-60">UX Parity with RDP / Guacamole</div>
 
 <div class="gauge-row">
   <div class="gauge-label">Connect</div>
-  <div class="gauge-track"><div class="gauge-mid" style="width:60%;">VM start first</div></div>
+  <div class="gauge-track"><div class="gauge-mid" style="width:40%;">VM start first</div></div>
 </div>
 <div class="gauge-row">
   <div class="gauge-label">Credentials</div>
-  <div class="gauge-track"><div class="gauge-full" style="width:90%;">Keycloak SSO</div></div>
+  <div class="gauge-track"><div class="gauge-full" style="width:95%;">Keycloak SSO</div></div>
 </div>
 <div class="gauge-row">
   <div class="gauge-label">MFA</div>
@@ -683,21 +686,31 @@ SSE `?access_token=...` in URL is visible in logs, browser history, and referrer
 </div>
 <div class="gauge-row">
   <div class="gauge-label">Embed view</div>
-  <div class="gauge-track"><div class="gauge-low" style="width:20%;">Redirects</div></div>
+  <div class="gauge-track"><div class="gauge-low" style="width:10%;"></div></div>
 </div>
 <div class="gauge-row">
   <div class="gauge-label">Mobile UI</div>
-  <div class="gauge-track"><div class="gauge-high" style="width:75%;">Responsive</div></div>
+  <div class="gauge-track"><div class="gauge-high" style="width:70%;">Responsive</div></div>
 </div>
 
-<div class="heatmap-legend mt-2">
-  <span class="opacity-50 text-xs">Baseline: FreeRDP (full bars) / Guacamole (no embed but simple)</span>
+<div class="text-xs opacity-40 mt-1">Full bar = FreeRDP baseline</div>
+
+</div>
+<div>
+
+<div class="status-card status-info">
+
+**Biggest gap:** SPICE sessions open in a **new tab** — the user leaves the gateway entirely. RDP and Guacamole embed the remote view inline.
+
 </div>
 
-<div v-click class="status-card status-info mt-2">
+<div class="status-card status-warn mt-2">
 
-The redirect-based launch means users leave the gateway to enter a SPICE session. RDP and Guacamole embed the remote view — a more seamless experience.
+**Connect flow:** RDP/Guacamole = single click. OSVDI = create VM → start → wait → click Play. Multi-step for first use.
 
+</div>
+
+</div>
 </div>
 
 ---
@@ -794,7 +807,10 @@ TESTING NOTES:
 
 # Native Client: RDP Comparison
 
-<div class="text-sm font-semibold mb-1 opacity-60">OSVDI Native vs FreeRDP (full = parity)</div>
+<div class="grid grid-cols-2 gap-6">
+<div>
+
+<div class="text-sm font-semibold mb-2 opacity-60">OSVDI Native vs FreeRDP (full = parity)</div>
 
 <div class="gauge-row">
   <div class="gauge-label">Video (HW)</div>
@@ -802,19 +818,19 @@ TESTING NOTES:
 </div>
 <div class="gauge-row">
   <div class="gauge-label">Audio/Clip/USB</div>
-  <div class="gauge-track"><div class="gauge-high" style="width:65%;">In code, untested</div></div>
+  <div class="gauge-track"><div class="gauge-high" style="width:50%;">In code, untested</div></div>
 </div>
 <div class="gauge-row">
   <div class="gauge-label">File transfer</div>
-  <div class="gauge-track"><div class="gauge-mid" style="width:80%;">Almost — chardev fix</div></div>
+  <div class="gauge-track"><div class="gauge-mid" style="width:85%;">chardev fix</div></div>
 </div>
 <div class="gauge-row">
   <div class="gauge-label">Printing</div>
-  <div class="gauge-track"><div class="gauge-low" style="width:5%;"></div></div>
+  <div class="gauge-track"><div class="gauge-low" style="width:3%;"></div></div>
 </div>
 <div class="gauge-row">
   <div class="gauge-label">Multi-monitor</div>
-  <div class="gauge-track"><div class="gauge-mid" style="width:40%;">Surface 0 only</div></div>
+  <div class="gauge-track"><div class="gauge-mid" style="width:30%;">Surface 0</div></div>
 </div>
 <div class="gauge-row">
   <div class="gauge-label">Cross-platform</div>
@@ -822,13 +838,27 @@ TESTING NOTES:
 </div>
 <div class="gauge-row">
   <div class="gauge-label">Install UX</div>
-  <div class="gauge-track"><div class="gauge-low" style="width:25%;">Manual deps</div></div>
+  <div class="gauge-track"><div class="gauge-low" style="width:20%;">Manual deps</div></div>
 </div>
 
-<div v-click class="status-card status-warn mt-2" style="padding:0.4rem 0.75rem;">
+<div class="text-xs opacity-40 mt-1">Full bar = FreeRDP baseline</div>
 
-Audio, clipboard, USB in spice-gtk code but **not confirmed end-to-end**. Installation requires manual `libva` dep install — no setup guide exists.
+</div>
+<div>
 
+<div class="status-card status-warn" style="padding:0.5rem 0.75rem;">
+
+Audio, clipboard, USB in spice-gtk code but **not confirmed end-to-end**. Manual `libva` dep install — no setup guide.
+
+</div>
+
+<div class="status-card status-success mt-2" style="padding:0.5rem 0.75rem;">
+
+**Bright spot:** Video is at full parity — HW-accelerated, 12 codec decoders. File transfer needs only a 1-line config fix.
+
+</div>
+
+</div>
 </div>
 
 ---
