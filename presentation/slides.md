@@ -1172,15 +1172,36 @@ layout: section
 
 # Channel Support: Core Channels
 
-<div class="text-xs">
+<div class="heatmap mt-2" style="grid-template-columns: 1.6fr repeat(4, 1fr); max-width: 620px;">
+  <div class="heatmap-header"></div>
+  <div class="heatmap-header">Native</div>
+  <div class="heatmap-header">Browser</div>
+  <div class="heatmap-header">Mobile</div>
+  <div class="heatmap-header">FreeRDP</div>
 
-| Channel | Native | Browser | Mobile | FreeRDP |
-|---------|:------:|:-------:|:------:|:-------:|
-| **Video** | 12 codecs, HW | 3 codecs (buggy) | Via browser | Full |
-| **Audio out** | In code (untested) | Opus (hack) | **None** | Full |
-| **Audio in** | In code (untested) | **None** | **None** | Full |
-| **Clipboard** | In code (untested) | **Partial** | **None** | Full |
+  <div class="heatmap-row-label">Video</div>
+  <div class="heatmap-cell heat-full">12 HW</div>
+  <div class="heatmap-cell heat-partial">3 buggy</div>
+  <div class="heatmap-cell heat-partial">Via web</div>
+  <div class="heatmap-cell heat-full">Full</div>
 
+  <div class="heatmap-row-label">Audio out</div>
+  <div class="heatmap-cell heat-untested">?</div>
+  <div class="heatmap-cell heat-partial">Hack</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Audio in</div>
+  <div class="heatmap-cell heat-untested">?</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Clipboard</div>
+  <div class="heatmap-cell heat-untested">?</div>
+  <div class="heatmap-cell heat-partial">Partial</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
 </div>
 
 <div v-click class="status-card status-info mt-2">
@@ -1193,16 +1214,42 @@ Native client has channel code in spice-gtk but **end-to-end testing is pending*
 
 # Channel Support: Advanced Channels
 
-<div class="text-xs">
+<div class="heatmap mt-2" style="grid-template-columns: 1.6fr repeat(4, 1fr); max-width: 620px;">
+  <div class="heatmap-header"></div>
+  <div class="heatmap-header">Native</div>
+  <div class="heatmap-header">Browser</div>
+  <div class="heatmap-header">Mobile</div>
+  <div class="heatmap-header">FreeRDP</div>
 
-| Channel | Native | Browser | Mobile | FreeRDP |
-|---------|:------:|:-------:|:------:|:-------:|
-| **USB redirect** | In code (untested) | **Impossible** | **Impossible** | Yes |
-| **File transfer** | Almost (chardev) | **UI only** | **None** | Yes |
-| **Printing** | **None** | **None** | **None** | Yes |
-| **Multi-monitor** | **Partial** | **None** | **None** | Yes |
-| **Smartcard** | In code (untested) | **None** | **None** | Yes |
+  <div class="heatmap-row-label">USB redirect</div>
+  <div class="heatmap-cell heat-untested">?</div>
+  <div class="heatmap-cell heat-impossible">N/A</div>
+  <div class="heatmap-cell heat-impossible">N/A</div>
+  <div class="heatmap-cell heat-full">✓</div>
 
+  <div class="heatmap-row-label">File transfer</div>
+  <div class="heatmap-cell heat-partial">Almost</div>
+  <div class="heatmap-cell heat-none">Fake</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Printing</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Multi-monitor</div>
+  <div class="heatmap-cell heat-partial">Partial</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Smartcard</div>
+  <div class="heatmap-cell heat-untested">?</div>
+  <div class="heatmap-cell heat-impossible">N/A</div>
+  <div class="heatmap-cell heat-impossible">N/A</div>
+  <div class="heatmap-cell heat-full">✓</div>
 </div>
 
 <div v-click class="status-card status-critical mt-2">
@@ -1215,21 +1262,57 @@ The further from native, the more channels lost. USB, printing, smartcard are **
 
 # Keyboard & Input Across Clients
 
-<div class="text-xs">
+<div class="heatmap mt-2" style="grid-template-columns: 2.2fr repeat(4, 1fr); max-width: 620px;">
+  <div class="heatmap-header"></div>
+  <div class="heatmap-header">Native</div>
+  <div class="heatmap-header">Browser</div>
+  <div class="heatmap-header">Mobile</div>
+  <div class="heatmap-header">FreeRDP</div>
 
-| Input Feature | Native | Browser | Mobile | FreeRDP |
-|---------------|:------:|:-------:|:------:|:-------:|
-| Full PC keyboard | Yes | Mostly | Basic chars | Yes |
-| Modifiers (Ctrl, Alt, Shift) | Yes | Yes (desync) | **Missing** | Yes |
-| Function keys (F1–F12) | Yes | Partial | **Missing** | Yes |
-| Dead keys / IME | Yes | **No** | **No** | Yes |
-| Esc key | Yes | Fullscreen conflict | **Missing** | Yes |
-| Mouse scroll | Yes | Yes | **Missing** | Yes |
-| Right-click | Yes | Yes | Two-finger tap | Yes |
+  <div class="heatmap-row-label">Full PC keyboard</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-partial">Most</div>
+  <div class="heatmap-cell heat-none">Basic</div>
+  <div class="heatmap-cell heat-full">✓</div>
 
+  <div class="heatmap-row-label">Modifiers (Ctrl, Alt, Shift)</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-partial">Desync</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Function keys (F1–F12)</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-partial">Some</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Dead keys / IME</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Esc key</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-partial">FS conflict</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Mouse scroll</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Right-click</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-partial">2-finger</div>
+  <div class="heatmap-cell heat-full">✓</div>
 </div>
 
-<div v-click class="status-card status-warn mt-1" style="padding:0.4rem 0.75rem;">
+<div v-click class="status-card status-warn mt-2" style="padding:0.4rem 0.75rem;">
 
 **The keyboard gap is the biggest usability blocker after video.** Without Ctrl, Alt, Shift, and F-keys, users cannot copy/paste, switch windows, or use terminal shortcuts.
 
