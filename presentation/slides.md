@@ -1429,33 +1429,36 @@ layout: section
 
 # What's Working Well
 
-<div class="grid grid-cols-2 gap-4">
-<div>
+<div class="grid grid-cols-2 gap-3">
 
-### Server & Protocol
+<div class="status-card status-success" style="padding:0.6rem 0.8rem;">
+<div class="font-bold text-sm mb-1">Server & Protocol</div>
 <div class="traffic-item"><div class="traffic-dot dot-green"></div>DMA-BUF zero-copy encoding — adaptive bitrate</div>
 <div class="traffic-item"><div class="traffic-dot dot-green"></div>14 codec types in protocol (future-proof)</div>
 <div class="traffic-item"><div class="traffic-dot dot-green"></div>SPICE routing via nginx SNI — elegant</div>
-
-### Native Client
-<div class="traffic-item"><div class="traffic-dot dot-green"></div>Video decode works (HW-accel, 12 codecs)</div>
-<div class="traffic-item"><div class="traffic-dot dot-green"></div>Runtime codec switching UI, AppImage CI</div>
-<div class="traffic-item"><div class="traffic-dot dot-blue"></div>Audio, clipboard, USB: in code, <b>untested</b></div>
-
 </div>
-<div>
 
-### Access Gateway
+<div class="status-card status-success" style="padding:0.6rem 0.8rem;">
+<div class="font-bold text-sm mb-1">Access Gateway</div>
 <div class="traffic-item"><div class="traffic-dot dot-green"></div>Keycloak OIDC authentication</div>
 <div class="traffic-item"><div class="traffic-dot dot-green"></div>Real-time SSE desktop updates</div>
 <div class="traffic-item"><div class="traffic-dot dot-green"></div>Desktop management (CRUD) works</div>
-
-### Infrastructure
-<div class="traffic-item"><div class="traffic-dot dot-green"></div>Full observability (OTel + Grafana)</div>
-<div class="traffic-item"><div class="traffic-dot dot-green"></div>Guest agent (clipboard, USB, file transfer code)</div>
-<div class="traffic-item"><div class="traffic-dot dot-green"></div>Multiple storage backends (NFS, Ceph, DNBD3)</div>
-
 </div>
+
+<div class="status-card status-info" style="padding:0.6rem 0.8rem;">
+<div class="font-bold text-sm mb-1">Native Client</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Video decode works (HW-accel, 12 codecs)</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Runtime codec switching UI, AppImage CI</div>
+<div class="traffic-item"><div class="traffic-dot dot-blue"></div>Audio, clipboard, USB: in code, <b>untested</b></div>
+</div>
+
+<div class="status-card status-success" style="padding:0.6rem 0.8rem;">
+<div class="font-bold text-sm mb-1">Infrastructure</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Full observability (OTel + Grafana)</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Guest agent (clipboard, USB, file transfer)</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Multiple storage backends (NFS, Ceph, DNBD3)</div>
+</div>
+
 </div>
 
 <!--
@@ -1469,38 +1472,28 @@ Infrastructure: OTel/Grafana/storage backends confirmed from docker-compose.yaml
 
 # What's Not Working
 
-<div class="grid grid-cols-2 gap-4">
-<div>
+<div class="grid grid-cols-2 gap-3">
 
-### Critical (Blocks Basic Usage)
-
+<div class="status-card status-critical" style="padding:0.5rem 0.8rem;">
+<div class="font-bold text-sm mb-1">Critical (Blocks Basic Usage)</div>
 <div class="traffic-item"><div class="traffic-dot dot-red"></div><b>spice-html5:</b> H.264 hardcoded 1920x1080</div>
 <div class="traffic-item"><div class="traffic-dot dot-red"></div><b>spice-html5:</b> No reconnection on disconnect</div>
-<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>spice-html5:</b> File transfer is fake (UI only)</div>
-<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Mobile:</b> Screen cropped / taskbar cut off</div>
-<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Mobile:</b> No cursor visible (Android)</div>
-<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Mobile:</b> No modifier keys on either platform</div>
-<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Mobile:</b> iOS session dies on screen lock</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>spice-html5:</b> File transfer fake (UI only)</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Mobile:</b> Screen cropped / no cursor</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Mobile:</b> No modifier keys, iOS session death</div>
 <div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Gateway:</b> SSE token exposed in URL</div>
-
-
 </div>
-<div>
 
-### Significant (Blocks Real Work)
-
-<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>spice-html5:</b> Modifier key desync on focus loss</div>
-<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>spice-html5:</b> No dead key / IME input</div>
-<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Server:</b> Only 4 of 14 codecs encoded</div>
-<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Server:</b> No H.265/AV1 despite protocol support</div>
+<div class="status-card status-warn" style="padding:0.5rem 0.8rem;">
+<div class="font-bold text-sm mb-1">Significant (Blocks Real Work)</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>spice-html5:</b> Modifier desync, no dead keys</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Server:</b> Only 4/14 codecs, no H.265/AV1</div>
 <div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Native:</b> File transfer not wired (chardev)</div>
-<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Native:</b> Multi-monitor limited to surface 0</div>
-<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Native:</b> Linux-only — no macOS / Windows</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Native:</b> Multi-monitor, Linux-only</div>
 <div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Gateway:</b> No session timeout warning</div>
 <div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Mobile:</b> No scroll, zoom broken, no settings</div>
-
-
 </div>
+
 </div>
 
 ---
