@@ -36,6 +36,14 @@ jobs:
       - run: pnpm slidev build --base /osvdi-evaluation/
         working-directory: presentation
 
+      - name: Copy supplementary docs into build
+        run: |
+          mkdir -p presentation/dist/docs
+          cp report.md presentation/dist/docs/
+          cp accessibility-evaluation.md presentation/dist/docs/
+          cp cross-platform-strategy.md presentation/dist/docs/
+          cp security-findings.md presentation/dist/docs/
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: presentation/dist
