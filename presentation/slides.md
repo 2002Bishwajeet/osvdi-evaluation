@@ -548,16 +548,18 @@ layout: section
 <div class="grid grid-cols-2 gap-4">
 <div>
 
-### Channels Verified
+### Channel Status
 
-| Channel | Status |
-|---------|--------|
-| Display (12 codecs, HW accel) | **Works** |
-| Keyboard + mouse (PC XT scancodes) | **Works** |
-| Audio bidirectional (Opus) | **Works** |
-| Clipboard (GTK integration) | **Works** |
-| USB redirect (15 xHCI ports) | **Works** |
-| Smartcard | **Works** |
+| Channel | Code | Tested |
+|---------|:----:|:------:|
+| Display (12 codecs, HW) | Yes | **Works** |
+| Keyboard + mouse | Yes | **Works** |
+| Audio bidirectional (Opus) | Yes | **Not verified** |
+| Clipboard (GTK) | Yes | **Not verified** |
+| USB redirect (15 ports) | Yes | **Not verified** |
+| Smartcard | Yes | **Not verified** |
+
+<span class="text-xs opacity-60">Code = implemented in spice-gtk. Testing needed.</span>
 
 </div>
 <div>
@@ -567,7 +569,6 @@ layout: section
 - **AppImage build pipeline** — bundles GStreamer + libva
 - Removed decoding queue → atomic counter (perf win)
 - `alignment=au` — reduces buffering (lower latency)
-- Wayland improvements, frame metadata
 
 ### Distribution
 - Pre-built **AppImage** (x86_64 Linux only) via GitLab CI
@@ -610,9 +611,9 @@ layout: section
 | Feature | FreeRDP | OSVDI |
 |---------|:-------:|:-----:|
 | Video (HW decode) | Yes | Yes |
-| Audio (bidirectional) | Yes | Yes |
-| Clipboard | Yes | Yes |
-| USB redirect | Yes | Yes |
+| Audio (bidirectional) | Yes | In code (untested) |
+| Clipboard | Yes | In code (untested) |
+| USB redirect | Yes | In code (untested) |
 
 </div>
 <div>
@@ -632,7 +633,7 @@ layout: section
 
 <div class="status-card status-warn mt-2">
 
-Strong core but not at FreeRDP parity. Biggest gaps: **printing**, **multi-monitor**, **cross-platform builds**.
+Audio, clipboard, USB are **implemented in spice-gtk** but not yet confirmed working end-to-end on OSVDI. Needs hands-on testing.
 
 </div>
 
@@ -927,15 +928,15 @@ layout: section
 | Channel | Native | Browser | Mobile | FreeRDP |
 |---------|:------:|:-------:|:------:|:-------:|
 | **Video** | 12 codecs, HW | 3 codecs (buggy) | Via browser | Full |
-| **Audio out** | Opus | Opus (hack) | **None** | Full |
-| **Audio in** | Opus | **None** | **None** | Full |
-| **Clipboard** | Full | **Partial** | **None** | Full |
+| **Audio out** | In code (untested) | Opus (hack) | **None** | Full |
+| **Audio in** | In code (untested) | **None** | **None** | Full |
+| **Clipboard** | In code (untested) | **Partial** | **None** | Full |
 
 </div>
 
 <div class="status-card status-info mt-2">
 
-Core media channels work on native. Browser loses audio input. Mobile has **no audio or clipboard at all**.
+Native client has channel code in spice-gtk but **end-to-end testing is pending**. Browser loses audio input. Mobile has **no audio or clipboard at all**.
 
 </div>
 
@@ -947,17 +948,17 @@ Core media channels work on native. Browser loses audio input. Mobile has **no a
 
 | Channel | Native | Browser | Mobile | FreeRDP |
 |---------|:------:|:-------:|:------:|:-------:|
-| **USB redirect** | Full (15 ports) | **Impossible** | **Impossible** | Yes |
+| **USB redirect** | In code (untested) | **Impossible** | **Impossible** | Yes |
 | **File transfer** | Almost (chardev) | **UI only** | **None** | Yes |
 | **Printing** | **None** | **None** | **None** | Yes |
 | **Multi-monitor** | **Partial** | **None** | **None** | Yes |
-| **Smartcard** | Full | **None** | **None** | Yes |
+| **Smartcard** | In code (untested) | **None** | **None** | Yes |
 
 </div>
 
 <div class="status-card status-critical mt-2">
 
-The further from native, the more channels lost. USB, printing, smartcard are **impossible** via browser/WebView. Mobile = video + basic input only.
+The further from native, the more channels lost. USB, printing, smartcard are **impossible** via browser/WebView. Native channels need end-to-end verification.
 
 </div>
 
@@ -1041,10 +1042,9 @@ layout: section
 - SPICE routing via nginx SNI — elegant
 
 ### Native Client
-- All 9 usable channels implemented
-- HW-accelerated decode (12 codecs)
-- Runtime codec switching UI
-- AppImage build pipeline working
+- Video decode works (HW-accel, 12 codecs in code)
+- Runtime codec switching UI, AppImage pipeline
+- Audio, clipboard, USB: in code, **testing pending**
 
 </div>
 <div>
