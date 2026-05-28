@@ -334,3 +334,190 @@ html.dark .thankyou-links {
   margin-top: 0.75rem;
   opacity: 0.8;
 }
+
+/* ─── Hero Stat Slides ─── */
+
+.hero-stat {
+  font-size: 5.5rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+html.dark .hero-stat {
+  background: linear-gradient(135deg, #60a5fa, #93c5fd);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.hero-stat-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+  opacity: 0.5;
+  margin-top: 0.25rem;
+}
+
+/* ─── Funnel Visualization ─── */
+
+.funnel-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.funnel-step {
+  text-align: center;
+}
+
+.funnel-number {
+  font-size: 4.5rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.funnel-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+  opacity: 0.7;
+}
+
+.funnel-arrow {
+  font-size: 2.5rem;
+  opacity: 0.25;
+  font-weight: 300;
+}
+
+.funnel-sublabel {
+  font-size: 0.65rem;
+  opacity: 0.5;
+  margin-top: 0.15rem;
+}
+
+/* ─── Channel Heatmap ─── */
+
+.heatmap {
+  display: grid;
+  gap: 3px;
+  font-size: 0.7rem;
+}
+
+.heatmap-header {
+  font-weight: 700;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.35rem 0.5rem;
+  opacity: 0.6;
+  text-align: center;
+}
+
+.heatmap-row-label {
+  font-weight: 600;
+  font-size: 0.72rem;
+  padding: 0.35rem 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.heatmap-cell {
+  padding: 0.35rem 0.25rem;
+  border-radius: 0.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+  transition: transform 0.2s;
+}
+
+.heatmap-cell:hover {
+  transform: scale(1.1);
+}
+
+.heat-full {
+  background: #16a34a;
+  color: white;
+}
+
+.heat-partial {
+  background: #d97706;
+  color: white;
+}
+
+.heat-none {
+  background: #dc2626;
+  color: white;
+}
+
+.heat-untested {
+  background: #2563eb;
+  color: white;
+}
+
+.heat-impossible {
+  background: #374151;
+  color: #9ca3af;
+}
+
+html.dark .heat-full { background: #22c55e; }
+html.dark .heat-partial { background: #f59e0b; }
+html.dark .heat-none { background: #ef4444; }
+html.dark .heat-untested { background: #3b82f6; }
+html.dark .heat-impossible { background: #1f2937; color: #6b7280; }
+
+/* ─── Heatmap Legend ─── */
+
+.heatmap-legend {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.65rem;
+  opacity: 0.8;
+}
+
+.heatmap-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.heatmap-legend-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 0.2rem;
+}
+
+/* ─── Animated Counter ─── */
+
+@keyframes countPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.stat-pulse {
+  animation: countPulse 2s ease-in-out infinite;
+}
+
+/* ─── Slide-specific overrides ─── */
+
+.slidev-vclick-hidden {
+  pointer-events: none;
+}
+
+/* Compact table for v-click slides */
+.compact-table table {
+  font-size: 0.78em;
+}
+
+.compact-table table td,
+.compact-table table th {
+  padding: 0.25rem 0.5rem;
+}
