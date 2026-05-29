@@ -1702,40 +1702,32 @@ QUICK WIN DETAILS:
 <div class="grid grid-cols-2 gap-4">
 <div>
 
-### HTML5 Rewrite (Rafael)
+### Native Client — Test & Polish
+- **Latency benchmarking** (native vs browser vs mobile)
+- **Bidirectional audio** — verify Opus end-to-end
+- **USB redirect** — test device classes (storage, HID)
+- **Clipboard** — verify with spice-vdagent
+- Multi-monitor beyond surface 0
+- Bundle virt-viewer for easy distribution
 
-Feed these findings as **requirements**:
-- WebSocket reconnection logic
-- Modifier key sync on focus loss
-- Dead key / IME support
-- Real file transfer (not UI-only)
-- Image cache eviction
-- Support non-1080p resolutions
-
-### Access Gateway
-- Session timeout warning
-- SSE reconnection with backoff
-- Embed SPICE view (don't redirect)
-- Clipboard / file transfer UI
+### HTML5 Rewrite (Rafael — ongoing)
+Feed bugs as **rewrite requirements** (reconnection, modifiers, dead keys, non-1080p)
 
 </div>
 <div>
 
-### Native Client
-- Wire WebDAV chardev in templates
-- Multi-monitor beyond surface 0
-- Adaptive quality UI (not just env var)
-- macOS / Windows build pipeline
+### Access Gateway — Security & UX
+- Fix **32 vulnerabilities** found (see security-findings.md)
+- SSE token → cookie-based auth
+- Session timeout warning
+- Embed SPICE view (don't redirect)
+- Clipboard / file transfer UI
 
-
-### Mobile Apps
-
-
-- Fit-to-screen scaling + visible cursor
-- Modifier key bar overlay
-- Fix pinch-to-zoom
+### Mobile & Desktop Apps
+- Cross-platform approach (Flutter PoC if latency OK)
+- Desktop app shell bundling virt-viewer
+- Mobile: screen scaling, modifier bar, pinch-zoom
 - iOS: session survive screen lock
-
 
 </div>
 </div>
@@ -1794,7 +1786,7 @@ Feed these findings as **requirements**:
 </div>
 
 <div class="mb-3">
-<div class="font-bold text-green-500 mb-1">Phase 1: Quick Wins (1–2 weeks)</div>
+<div class="font-bold text-green-500 mb-1">Phase 1: Quick Wins + Infra Fixes (1–2 weeks)</div>
 <div class="flex gap-1 mb-1">
   <div class="rounded px-2 py-0.5 text-white" style="background:#16a34a; width:15%;">WebDAV chardev</div>
   <div class="rounded px-2 py-0.5 text-white" style="background:#22c55e; width:15%;">SSE token fix</div>
@@ -1804,38 +1796,48 @@ Feed these findings as **requirements**:
 </div>
 
 <div class="mb-3">
-<div class="font-bold text-blue-500 mb-1">Phase 2: HTML5 Rewrite Handoff (2 weeks)</div>
+<div class="font-bold text-blue-500 mb-1">Phase 2: Native Client Testing & Polish (4–6 weeks)</div>
 <div class="flex gap-1 mb-1">
+  <div style="width:8%;"></div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#1d4ed8; width:22%;">Latency benchmarks</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#2563eb; width:22%;">Audio bidirectional</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#3b82f6; width:18%;">USB / clipboard</div>
+</div>
+<div class="flex gap-1">
   <div style="width:15%;"></div>
-  <div class="rounded px-2 py-0.5 text-white" style="background:#2563eb; width:20%;">Feed bugs to Rafael</div>
-  <div class="rounded px-2 py-0.5 text-white" style="background:#3b82f6; width:18%;">Coordinate API needs</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#60a5fa; color:#000; width:20%;">Codec comparison</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#93c5fd; color:#000; width:18%;">Multi-monitor</div>
 </div>
 </div>
 
 <div class="mb-3">
-<div class="font-bold text-purple-500 mb-1">Phase 3: Mobile MVP (4–6 weeks)</div>
+<div class="font-bold text-red-500 mb-1">Phase 3: Gateway Security & UX (parallel, 4–6 weeks)</div>
 <div class="flex gap-1 mb-1">
-  <div style="width:10%;"></div>
-  <div class="rounded px-2 py-0.5 text-white" style="background:#7c3aed; width:25%;">Screen scaling + cursor</div>
-  <div class="rounded px-2 py-0.5 text-white" style="background:#8b5cf6; width:22%;">Modifier key bar</div>
-  <div class="rounded px-2 py-0.5 text-white" style="background:#a78bfa; color:#000; width:18%;">Pinch-zoom</div>
+  <div style="width:8%;"></div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#dc2626; width:25%;">Fix 32 vulnerabilities</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#ef4444; width:20%;">SSE auth fix</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#f87171; color:#000; width:20%;">UX polish</div>
+</div>
+</div>
+
+<div class="mb-3">
+<div class="font-bold text-purple-500 mb-1">Phase 4: App Strategy — Mobile + Desktop + Bundling (6–10 weeks)</div>
+<div class="flex gap-1 mb-1">
+  <div style="width:30%;"></div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#7c3aed; width:22%;">Cross-platform PoC</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#8b5cf6; width:20%;">Bundle virt-viewer</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#a78bfa; color:#000; width:22%;">Desktop app</div>
 </div>
 <div class="flex gap-1">
-  <div style="width:18%;"></div>
-  <div class="rounded px-2 py-0.5 text-white" style="background:#6d28d9; width:18%;">iOS session fix</div>
+  <div style="width:35%;"></div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#6d28d9; width:25%;">Mobile MVP (scaling, KB)</div>
 </div>
 </div>
 
 <div class="mb-1">
-<div class="font-bold text-amber-500 mb-1">Phase 4: Native + Gateway (6–12 weeks)</div>
+<div class="font-bold opacity-40 mb-1">Parallel: Rafael's HTML5 Rewrite (ongoing — not this project)</div>
 <div class="flex gap-1 mb-1">
-  <div style="width:40%;"></div>
-  <div class="rounded px-2 py-0.5 text-white" style="background:#d97706; width:25%;">Multi-monitor fix</div>
-  <div class="rounded px-2 py-0.5 text-white" style="background:#f59e0b; color:#000; width:30%;">macOS / Windows builds</div>
-</div>
-<div class="flex gap-1">
-  <div style="width:40%;"></div>
-  <div class="rounded px-2 py-0.5 text-white" style="background:#b45309; width:20%;">Gateway UX</div>
+  <div class="rounded px-2 py-0.5 opacity-50" style="background:#9ca3af; color:white; width:95%;">Feed bugs as requirements — coordinate on API changes affecting mobile bridges</div>
 </div>
 </div>
 
