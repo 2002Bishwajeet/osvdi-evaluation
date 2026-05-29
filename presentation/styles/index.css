@@ -230,7 +230,7 @@ html.dark .score-ios {
   width: 400px;
   height: 400px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 74, 153, 0.06);
 }
 
 .cover-decoration::after {
@@ -241,6 +241,14 @@ html.dark .score-ios {
   width: 300px;
   height: 300px;
   border-radius: 50%;
+  background: rgba(0, 115, 230, 0.04);
+}
+
+html.dark .cover-decoration::before {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+html.dark .cover-decoration::after {
   background: rgba(255, 255, 255, 0.05);
 }
 

@@ -2,9 +2,7 @@
 theme: academic
 layout: cover
 class: text-white
-coverAuthor: Bishwajeet Parhi
-coverAuthorUrl: https://github.com/2002Bishwajeet
-coverDate: "26 May 2026"
+coverDate: ""
 title: "Evaluation and Improvements of Remote Access in OSVDI"
 titleTemplate: "%s — Bishwajeet Parhi"
 info: |
