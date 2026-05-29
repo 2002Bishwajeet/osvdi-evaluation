@@ -38,10 +38,6 @@ exportFilename: osvdi-evaluation-presentation
 
 <div class="cover-decoration"></div>
 
-<div class="absolute top-8 right-10">
-<img :src="$base + 'author.png'" class="rounded-full shadow-2xl border-3 border-cyan-400/50" style="width:90px; height:90px; object-fit:cover;" />
-</div>
-
 <div class="mt-4">
 <span class="text-cyan-400 text-sm font-mono tracking-widest uppercase">Study Project — eScience Department</span>
 </div>
@@ -297,32 +293,32 @@ graph LR
 # SPICE Protocol: Codecs & Reality
 
 <div class="funnel-container mt-6 mb-4">
-<div v-click class="funnel-step">
+<div class="funnel-step">
   <div class="funnel-number text-blue-500">14</div>
   <div class="funnel-label">Protocol</div>
   <div class="funnel-sublabel">Defined</div>
 </div>
-<div v-click class="funnel-arrow">→</div>
-<div v-click class="funnel-step">
+<div class="funnel-arrow">→</div>
+<div class="funnel-step">
   <div class="funnel-number text-green-500">12</div>
   <div class="funnel-label">Native</div>
   <div class="funnel-sublabel">Can decode</div>
 </div>
-<div v-click class="funnel-arrow">→</div>
-<div v-click class="funnel-step">
+<div class="funnel-arrow">→</div>
+<div class="funnel-step">
   <div class="funnel-number text-amber-500">4</div>
   <div class="funnel-label">Server</div>
   <div class="funnel-sublabel">Encodes today</div>
 </div>
-<div v-click class="funnel-arrow">→</div>
-<div v-click class="funnel-step">
+<div class="funnel-arrow">→</div>
+<div class="funnel-step">
   <div class="funnel-number text-red-500">3</div>
   <div class="funnel-label">HTML5</div>
   <div class="funnel-sublabel">Reliable</div>
 </div>
 </div>
 
-<div v-click class="text-xs">
+<div class="text-xs">
 
 | Codec | Server | Native | HTML5 | Note |
 |-------|:------:|:------:|:-----:|------|
@@ -1320,10 +1316,17 @@ layout: section
   <div class="heatmap-cell heat-full">✓</div>
 </div>
 
-<div v-click class="status-card status-info mt-2">
+<div class="status-card status-info mt-3">
 
 Native client has channel code in spice-gtk but **end-to-end testing is pending**. Browser loses audio input. Mobile has **no audio or clipboard at all**.
 
+</div>
+
+<div class="heatmap-legend mt-2">
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#16a34a;"></div> Works</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#2563eb;"></div> In code (untested)</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#d97706;"></div> Partial</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#dc2626;"></div> Missing</div>
 </div>
 
 ---
@@ -1368,10 +1371,16 @@ Native client has channel code in spice-gtk but **end-to-end testing is pending*
   <div class="heatmap-cell heat-full">✓</div>
 </div>
 
-<div v-click class="status-card status-critical mt-2">
+<div class="status-card status-critical mt-3">
 
 The further from native, the more channels lost. USB, printing, smartcard are **impossible** via browser/WebView. Native channels need end-to-end verification.
 
+</div>
+
+<div class="heatmap-legend mt-2">
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#374151;"></div> Impossible (browser)</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#d97706;"></div> Partial</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#dc2626;"></div> Missing</div>
 </div>
 
 ---
@@ -1758,7 +1767,7 @@ Feed these findings as **requirements**:
 - Students accessing from any device
 
 
-<div v-click class="status-card status-success mt-2" style="padding:0.4rem 0.75rem;">
+<div class="status-card status-success mt-2" style="padding:0.4rem 0.75rem;">
 
 **The Balance:** Native for **primary work** (performance, full channels). Browser for **convenience access** (quick checks, any device).
 
