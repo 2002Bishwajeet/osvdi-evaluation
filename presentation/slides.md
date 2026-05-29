@@ -2,9 +2,7 @@
 theme: academic
 layout: cover
 class: text-white
-coverAuthor: Bishwajeet Parhi
-coverAuthorUrl: https://github.com/2002Bishwajeet
-coverDate: "26 May 2026"
+coverDate: ""
 title: "Evaluation and Improvements of Remote Access in OSVDI"
 titleTemplate: "%s — Bishwajeet Parhi"
 info: |
@@ -38,17 +36,16 @@ exportFilename: osvdi-evaluation-presentation
 
 <div class="cover-decoration"></div>
 
-<div class="absolute top-8 right-10">
-<img :src="$base + 'author.png'" class="rounded-full shadow-2xl border-3 border-cyan-400/50" style="width:90px; height:90px; object-fit:cover;" />
-</div>
-
 <div class="mt-4">
-<span class="text-cyan-400 text-sm font-mono tracking-widest uppercase">Study Project — eScience Department</span>
+<span class="text-cyan-600 dark:text-cyan-400 text-sm font-mono tracking-widest uppercase">Study Project — eScience Department</span>
 </div>
 
 # Evaluation and Improvements of<br/>Remote Access in OSVDI
 
-<div class="mt-2 text-xl text-gray-300 font-light">First Milestone — Comprehensive Evaluation</div>
+<div class="mt-2 text-xl text-gray-500 dark:text-gray-300 font-light">First Milestone — Comprehensive Evaluation</div>
+
+<div class="mt-4 text-sm font-semibold text-gray-600 dark:text-gray-300">Bishwajeet Parhi</div>
+<div class="text-xs text-gray-400 dark:text-gray-400">eScience Department, Computer Center, University of Freiburg</div>
 
 
 ---
@@ -120,15 +117,19 @@ layout: section
 
 ### What is VDI?
 
+
 - Desktop PCs offered as **remote VMs**
 - Users connect via a **Remote Access Protocol** (RAP)
 - Goal: replicate local desktop experience
 
+
 ### Why it matters
+
 
 - **Students**: access uni resources from any device
 - **Staff**: work from anywhere, any OS
 - **IT**: centralized, secure environments
+
 
 </div>
 <div>
@@ -158,12 +159,12 @@ Two dimensions: **round-trip time** (how fast actions show) and **usability** (a
 | **VNC** | Various | Yes | Simple, universal |
 
 <div class="mt-4 grid grid-cols-2 gap-4">
-<div class="status-card status-info">
+<div v-click class="status-card status-info">
 
 **SPICE** is OSVDI's protocol — QEMU/KVM native, multi-codec video streaming, channels for audio, USB, clipboard, printing.
 
 </div>
-<div class="status-card status-success">
+<div v-click class="status-card status-success">
 
 **Baselines**: FreeRDP (RDP) and bwLehrpool/Guacamole (VNC) for "what users expect."
 
@@ -195,29 +196,39 @@ layout: section
 <div>
 
 ### Access Layer
+
+
 - **React 18** (`osvdi-fe`) + Redux, MUI 7
 - Redirects to SPICE HTML5 (not embedded)
 - **Keycloak 26** OIDC authentication
 
+
 ### Backend (5 Docker Services)
+
+
 - **C# ASP.NET Core 10** REST API
 - **nginx** proxy (TLS + SPICE routing)
-- SQLite DB (desktops, templates, flavors)
-- LGTM observability stack
-- cAdvisor + OpenTelemetry
+- SQLite DB, LGTM observability, OpenTelemetry
+
 
 </div>
 <div>
 
 ### Infrastructure
+
+
 - **QEMU/KVM** hypervisors (libvirt)
 - Storage: NFS, Ceph RBD, DNBD3, local
 - Proxmox & OpenStack scaffolded
 
+
 ### SPICE Routing (nginx)
+
+
 - SNI: `{desktop-id}.proxy.example.com`
 - Dynamic ACME wildcard TLS
 - Connection tracking + OTel tracing
+
 
 </div>
 </div>
@@ -282,24 +293,41 @@ graph LR
 
 # SPICE Protocol: Codecs & Reality
 
-`new_video_codecs` branch: **14 codec types** — but server and clients lag behind.
+<div class="funnel-container mt-6 mb-4">
+<div class="funnel-step">
+  <div class="funnel-number text-blue-500">14</div>
+  <div class="funnel-label">Protocol</div>
+  <div class="funnel-sublabel">Defined</div>
+</div>
+<div class="funnel-arrow">→</div>
+<div class="funnel-step">
+  <div class="funnel-number text-green-500">12</div>
+  <div class="funnel-label">Native</div>
+  <div class="funnel-sublabel">Can decode</div>
+</div>
+<div class="funnel-arrow">→</div>
+<div class="funnel-step">
+  <div class="funnel-number text-amber-500">4</div>
+  <div class="funnel-label">Server</div>
+  <div class="funnel-sublabel">Encodes today</div>
+</div>
+<div class="funnel-arrow">→</div>
+<div class="funnel-step">
+  <div class="funnel-number text-red-500">3</div>
+  <div class="funnel-label">HTML5</div>
+  <div class="funnel-sublabel">Reliable</div>
+</div>
+</div>
 
 <div class="text-xs">
 
-| Codec | Protocol | Server Encodes | Native Decodes | HTML5 Decodes |
-|-------|:--------:|:--------------:|:--------------:|:-------------:|
-| **MJPEG** | Yes | Yes | Yes | Yes |
-| **VP8** | Yes | Yes | Yes | Yes (MediaSource) |
-| **H.264** | Yes + 4:4:4 | Yes (HW+SW) | Yes (HW+SW) | Buggy (WebCodecs) |
-| **VP9** | Yes + 4:4:4 | Yes | Yes | **No** |
-| **H.265** | Yes + 4:4:4 | **No** | Yes | **No** |
-| **AV1** | Yes + 4:4:4 | **No** | Yes | **No** |
-
-</div>
-
-<div class="status-card status-warn mt-1" style="padding:0.5rem 0.75rem;">
-
-Protocol defines **14** codec types, server encodes **4**, HTML5 reliably decodes **3**. The protocol and native client are ahead of the server.
+| Codec | Server | Native | HTML5 | Note |
+|-------|:------:|:------:|:-----:|------|
+| **MJPEG** | Yes | Yes | Yes | Universal fallback |
+| **VP8** | Yes | Yes | Yes | MediaSource API |
+| **H.264** | Yes (HW) | Yes (HW) | Buggy | Hardcoded 1920x1080 |
+| **VP9** | Yes | Yes | **No** | — |
+| **H.265 / AV1** | **No** | Yes | **No** | Protocol-only |
 
 </div>
 
@@ -318,37 +346,67 @@ VERIFIED BY CODE REVIEW (not hands-on streaming tests):
 
 # SPICE Channels (11 Defined)
 
-<div class="grid grid-cols-2 gap-4">
-<div>
+<div class="mt-2">
 
-| Channel | Purpose |
-|---------|---------|
-| **MAIN** | Session control |
-| **DISPLAY** | Video stream |
-| **INPUTS** | Keyboard, mouse |
-| **CURSOR** | Cursor shape |
-| **PLAYBACK** | Audio out |
-| **RECORD** | Audio in |
+<!-- Channel heatmap: visual at a glance -->
+<div class="heatmap" style="grid-template-columns: 1.8fr repeat(4, 1fr); max-width: 600px;">
+  <div class="heatmap-header"></div>
+  <div class="heatmap-header">Native</div>
+  <div class="heatmap-header">Browser</div>
+  <div class="heatmap-header">Mobile</div>
+  <div class="heatmap-header">FreeRDP</div>
+
+  <div class="heatmap-row-label">Main / Display / Inputs / Cursor</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Audio Out (Playback)</div>
+  <div class="heatmap-cell heat-untested">?</div>
+  <div class="heatmap-cell heat-partial">Hack</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Audio In (Record)</div>
+  <div class="heatmap-cell heat-untested">?</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Clipboard</div>
+  <div class="heatmap-cell heat-untested">?</div>
+  <div class="heatmap-cell heat-partial">Partial</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">USB Redirect</div>
+  <div class="heatmap-cell heat-untested">?</div>
+  <div class="heatmap-cell heat-impossible">N/A</div>
+  <div class="heatmap-cell heat-impossible">N/A</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">File Transfer (WebDAV)</div>
+  <div class="heatmap-cell heat-partial">Almost</div>
+  <div class="heatmap-cell heat-none">Fake</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Smartcard / Printing</div>
+  <div class="heatmap-cell heat-untested">?</div>
+  <div class="heatmap-cell heat-impossible">N/A</div>
+  <div class="heatmap-cell heat-impossible">N/A</div>
+  <div class="heatmap-cell heat-full">✓</div>
+</div>
 
 </div>
-<div>
 
-| Channel | Purpose |
-|---------|---------|
-| **TUNNEL** | Network tunneling |
-| **SMARTCARD** | Smart card auth |
-| **USBREDIR** | USB redirection |
-| **PORT** | Generic data |
-| **WEBDAV** | File sharing |
-
-</div>
-</div>
-
-<div class="status-card status-critical mt-2">
-
-**Native client (spice-gtk):** implements **all 9 usable** channels.
-**HTML5 client:** implements **6/11** channels. **Mobile apps:** inherit HTML5 limitations + add their own.
-
+<div class="heatmap-legend mt-3">
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#16a34a;"></div> Works</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#2563eb;"></div> In code (untested)</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#d97706;"></div> Partial</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#dc2626;"></div> Missing</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#374151;"></div> Impossible (browser)</div>
 </div>
 
 <!--
@@ -375,12 +433,12 @@ Guest GPU → draw cmds → CPU rasterize → encode → network
 
 Guest GPU → DMA-BUF → GStreamer HW encode → network
 
-**Latency: 6–50ms**
+**Latency: 6–50ms** ← **3–10× faster**
 
 </div>
 </div>
 
-<div class="status-card status-success mt-2">
+<div v-click class="status-card status-success mt-2">
 
 Adaptive bitrate 128 Kbps–20 Mbps. Client feedback loop adjusts quality. 60+ OSVDI commits since Jan 2025. Intel GPU auto-detected; AMD/NVIDIA paths not yet implemented.
 
@@ -416,9 +474,11 @@ layout: section
 
 **What would a former user of RDP expect?**
 
+
 - FreeRDP / MS Remote Desktop: full channels, smooth experience, auto-reconnect
 - bwLehrpool (Guacamole): VNC-based, no audio, no file access — but simple and reliable
 - Expectation: everything "just works" on any device
+
 
 </div>
 
@@ -431,9 +491,11 @@ layout: section
 
 **What would a SPICE user familiar with the native client expect in web/mobile?**
 
+
 - `remote-viewer`: all 9 channels, HW-accelerated decode, full keyboard
 - Expectation: web/mobile variants should approach native quality
 - Reality: significant gap
+
 
 </div>
 
@@ -476,6 +538,7 @@ METHODOLOGY:
 
 ### Aspects Evaluated
 
+
 - Login and access gateway usability
 - Ease of use with Windows / Linux VMs
 - Keyboard, mouse, modifier keys
@@ -483,6 +546,7 @@ METHODOLOGY:
 - Code quality and critical bugs
 - Comparison with RDP/Guacamole baseline
 - Known issues (GitLab) vs new findings
+
 
 </div>
 </div>
@@ -518,29 +582,38 @@ layout: section
 <div>
 
 ### Authentication
+
+
 - Keycloak 26 OIDC integration — **works**
 - Login redirects handled smoothly
 - Admin vs user role distinction
 
+
 ### Desktop Management
+
+
 - Create / Start / Stop / Kill / Destroy — **works**
 - Grid view + Table view with filtering
-- Template + flavor selection
 - Real-time SSE updates (no page refresh)
+
 
 </div>
 <div>
 
 ### SPICE Launch
+
+
 - Click "Play" → checks VM state → launches
 - Toggle: HTML5 client vs native (`spice://` URI)
-- URL construction: `web_client_url + desktop.url`
 - **Redirects** browser — does NOT embed SPICE
 
+
 ### Updated Interface (Isabela)
-- New UI version on `dev.osvdi` — presented by Isabela
-- Improvements on dev, not yet on demo servers
+
+
+- New UI on `dev.osvdi` — not yet on demo servers
 - **Evaluation based on the demo version**
+
 
 </div>
 </div>
@@ -571,8 +644,6 @@ SSE `?access_token=...` in URL is visible in logs, browser history, and referrer
 
 </div>
 
-<!-- TODO: Add screenshot of gateway showing the issue (dev.osvdi) -->
-
 </div>
 <div>
 
@@ -593,23 +664,50 @@ SSE `?access_token=...` in URL is visible in logs, browser history, and referrer
 
 # Access Gateway: RDP Baseline Comparison
 
-<div class="text-xs">
+<div class="grid grid-cols-2 gap-6">
+<div>
 
-| Aspect | FreeRDP / MS RD | bwLehrpool (Guacamole) | OSVDI Gateway |
-|--------|:-:|:-:|:-:|
-| Single-click connect | Yes | Yes | Needs VM start first |
-| Credential storage | Yes | Browser | Keycloak SSO |
-| Multi-factor auth | Yes (AD) | No | Keycloak (configurable) |
-| Embedded remote view | Yes | Yes | **No — redirects away** |
-| Mobile-friendly UI | RD Client app | Responsive web | Responsive web |
+<div class="text-sm font-semibold mb-2 opacity-60">UX Parity with RDP / Guacamole</div>
+
+<div class="gauge-row">
+  <div class="gauge-label">Connect</div>
+  <div class="gauge-track"><div class="gauge-fill gauge-mid" style="width:40%;">VM start first</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Credentials</div>
+  <div class="gauge-track"><div class="gauge-fill gauge-full" style="width:95%;">Keycloak SSO</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">MFA</div>
+  <div class="gauge-track"><div class="gauge-fill gauge-full" style="width:100%;">Keycloak</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Embed view</div>
+  <div class="gauge-track"><div class="gauge-fill gauge-low" style="width:10%;"></div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Mobile UI</div>
+  <div class="gauge-track"><div class="gauge-fill gauge-high" style="width:70%;">Responsive</div></div>
+</div>
+
+<div class="text-xs opacity-40 mt-1">Full bar = FreeRDP baseline</div>
+
+</div>
+<div>
+
+<div class="status-card status-info">
+
+**Biggest gap:** SPICE sessions open in a **new tab** — the user leaves the gateway entirely. RDP and Guacamole embed the remote view inline.
 
 </div>
 
-<div class="status-card status-info mt-2">
+<div class="status-card status-warn mt-2">
 
-The redirect-based launch means users leave the gateway to enter a SPICE session. RDP and Guacamole embed the remote view — a more seamless experience.
-<!-- TODO: Were FreeRDP/bwLehrpool tested hands-on? On which clients/devices? Add comparison screenshots if available. -->
+**Connect flow:** RDP/Guacamole = single click. OSVDI = create VM → start → wait → click Play. Multi-step for first use.
 
+</div>
+
+</div>
 </div>
 
 ---
@@ -649,14 +747,20 @@ layout: section
 <div>
 
 ### OSVDI Patches
+
+
 - **Runtime codec selection UI** — switch codecs live
 - **AppImage build** — bundles GStreamer + libva
 - `alignment=au` + atomic counter (lower latency)
 
+
 ### Distribution
+
+
 - Pre-built **AppImage** (x86_64 Linux only) via GitLab CI
 - URI handler: `spice://`, `spice+tls://`
 - **Broken out-of-box:** missing `libva` deps, FUSE issues in WSL2, no setup guide
+
 
 </div>
 </div>
@@ -690,7 +794,7 @@ TESTING NOTES:
 
 </div>
 
-<div class="status-card status-success mt-2">
+<div v-click class="status-card status-success mt-2">
 
 **File transfer** is the closest quick win — adding `org.spice-space.webdav.0` to the VM template chardev would enable it. Code is complete on both server + guest agent sides.
 
@@ -700,24 +804,58 @@ TESTING NOTES:
 
 # Native Client: RDP Comparison
 
-<div class="text-xs">
+<div class="text-sm font-semibold mb-2 opacity-60">OSVDI Native vs FreeRDP (full bar = parity)</div>
 
-| Feature | FreeRDP | OSVDI Native | Gap |
-|---------|:-------:|:------------:|:---:|
-| Video (HW decode) | Yes | Yes | — |
-| Audio, clipboard, USB | Yes | In code (untested) | Test needed |
-| File transfer | Yes | **Almost** (chardev) | Config fix |
-| Printing | Yes | **No** | Missing |
-| Multi-monitor | Yes | **Partial** | Fix needed |
-| Cross-platform | Win/Mac/Linux | **Linux only** | Build needed |
-| Install & connect | `apt install` + run | AppImage + deps, no "copy URI" | UX |
+<div class="grid grid-cols-2 gap-4">
+<div>
 
+<div class="gauge-row">
+  <div class="gauge-label">Video (HW)</div>
+  <div class="gauge-track"><div class="gauge-fill gauge-full" style="width:100%;">Parity</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Audio/Clip/USB</div>
+  <div class="gauge-track"><div class="gauge-fill gauge-high" style="width:50%;">In code</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">File transfer</div>
+  <div class="gauge-track"><div class="gauge-fill gauge-mid" style="width:85%;">chardev fix</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Printing</div>
+  <div class="gauge-track"><div class="gauge-fill gauge-low" style="width:3%;"></div></div>
 </div>
 
-<div class="status-card status-warn mt-2" style="padding:0.4rem 0.75rem;">
+</div>
+<div>
 
-Audio, clipboard, USB in spice-gtk code but **not confirmed end-to-end**. Installation requires manual `libva` dep install — no setup guide exists.
+<div class="gauge-row">
+  <div class="gauge-label">Multi-monitor</div>
+  <div class="gauge-track"><div class="gauge-fill gauge-mid" style="width:30%;">Surface 0</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Cross-platform</div>
+  <div class="gauge-track"><div class="gauge-fill gauge-low" style="width:33%;">Linux only</div></div>
+</div>
+<div class="gauge-row">
+  <div class="gauge-label">Install UX</div>
+  <div class="gauge-track"><div class="gauge-fill gauge-low" style="width:20%;"></div></div>
+</div>
 
+</div>
+</div>
+
+<div class="grid grid-cols-2 gap-4 mt-2">
+<div class="status-card status-warn" style="padding:0.4rem 0.75rem;">
+
+Audio/clipboard/USB **not confirmed end-to-end**. Manual `libva` dep install — no setup guide.
+
+</div>
+<div class="status-card status-success" style="padding:0.4rem 0.75rem;">
+
+**Bright spot:** Video at full parity. File transfer needs only a 1-line chardev config fix.
+
+</div>
 </div>
 
 ---
@@ -737,35 +875,37 @@ layout: section
 
 # spice-html5: Overview
 
+<div class="grid grid-cols-3 gap-4 mt-2 mb-3">
+<div v-click class="text-center p-3 rounded-xl bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
+  <div class="hero-stat" style="font-size:2.8rem;">14 yrs</div>
+  <div class="hero-stat-label">First commit June 2012</div>
+</div>
+<div v-click class="text-center p-3 rounded-xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800">
+  <div class="hero-stat" style="font-size:2.8rem;">9.5K</div>
+  <div class="hero-stat-label">Lines of pure JS</div>
+</div>
+<div v-click class="text-center p-3 rounded-xl bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800">
+  <div class="hero-stat" style="font-size:2.8rem;">6/11</div>
+  <div class="hero-stat-label">Channels implemented</div>
+</div>
+</div>
+
 <div class="grid grid-cols-2 gap-4">
 <div>
 
-- First commit: **June 2012** — freedesktop.org
-- **~9,500 LOC** pure JS, zero npm deps
-- **WebSocket** binary subprotocol
-- Branch: `cursor_fix` (BGRA→RGBA fix)
-
-**Channels:** 6/11 — MAIN, DISPLAY, INPUTS, CURSOR, PLAYBACK, PORT
+**Channels:** MAIN, DISPLAY, INPUTS, CURSOR, PLAYBACK, PORT
 
 **Missing:** RECORD, SMARTCARD, USBREDIR, WEBDAV, TUNNEL
 
 </div>
 <div>
 
-### Video Codecs Supported
-
 | Codec | Method |
 |-------|--------|
 | QUIC | Native JS (CPU bottleneck) |
 | MJPEG | Canvas Image API |
 | VP8 | MediaSource / WebM |
-| **H.264** | **WebCodecs** (HW accel) |
-
-<div class="status-card status-warn" style="padding:0.5rem 0.75rem;">
-
-QUIC in JS is CPU-bound. H.264 via WebCodecs offloads to GPU but has critical bugs.
-
-</div>
+| **H.264** | **WebCodecs** (HW accel, buggy) |
 
 </div>
 </div>
@@ -774,24 +914,29 @@ QUIC in JS is CPU-bound. H.264 via WebCodecs offloads to GPU but has critical bu
 
 # spice-html5: Critical Bugs Found
 
-<div class="text-xs">
-
-| Bug | Severity | Location | New? |
-|-----|----------|----------|:----:|
-| H.264 resolution **hardcoded 1920x1080** | Critical | `display.js:1210` | Yes |
-| VideoDecoder **never closed** (memory leak) | High | `display.js:1196` | Yes |
-| **No WebSocket reconnection** on disconnect | High | `spiceconn.js:88` | Yes |
-| File transfer is **UI-only**, no actual upload | High | `filexfer.js` | Yes |
-| Modifier key state **desyncs** on focus loss | Medium | `inputs.js:32` | Yes |
-| **No dead key / IME** for non-Latin input | Medium | `code_to_scancode.js` | Yes |
-| Audio timestamp **hack** for Firefox | Medium | `playback.js:105` | Yes |
-| Image cache **unbounded** (no eviction) | Medium | `display.js:729` | Yes |
-
+<div class="flex items-center gap-4 mb-2">
+<div class="text-center p-2 rounded-xl bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800">
+  <div class="hero-stat" style="font-size:2.2rem; background:linear-gradient(135deg,#dc2626,#f87171); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">8</div>
+  <div class="hero-stat-label" style="font-size:0.65rem;">New bugs</div>
+</div>
+<div class="text-center p-2 rounded-xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800">
+  <div class="hero-stat" style="font-size:2.2rem; background:linear-gradient(135deg,#d97706,#fbbf24); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">0</div>
+  <div class="hero-stat-label" style="font-size:0.65rem;">Tracked</div>
+</div>
 </div>
 
-<div class="status-card status-critical mt-1" style="padding:0.4rem 0.75rem;">
+<div class="text-xs">
 
-All bugs above are **new findings** — not tracked in any existing GitLab issue.
+| Bug | Severity | Location |
+|-----|----------|----------|
+| H.264 resolution **hardcoded 1920x1080** | Critical | `display.js:1210` |
+| VideoDecoder **never closed** (memory leak) | High | `display.js:1196` |
+| **No WebSocket reconnection** on disconnect | High | `spiceconn.js:88` |
+| File transfer is **UI-only**, no actual upload | High | `filexfer.js` |
+| Modifier key state **desyncs** on focus loss | Medium | `inputs.js:32` |
+| **No dead key / IME** for non-Latin input | Medium | `code_to_scancode.js` |
+| Audio timestamp **hack** for Firefox | Medium | `playback.js:105` |
+| Image cache **unbounded** (no eviction) | Medium | `display.js:729` |
 
 </div>
 
@@ -804,25 +949,29 @@ All bugs above are **new findings** — not tracked in any existing GitLab issue
 
 ### Inherent Browser Constraints
 
+
 - Extra latency (event loop, buffering, compositor)
 - Keyboard limited (ESC, Alt, F-keys intercepted)
 - No USB, no printing, no file system access
 - WebSocket only (no raw TCP)
+
 
 </div>
 <div>
 
 ### What a Native SPICE User Will Notice
 
+
 - **Missing channels:** USB, file transfer, printing, record, smartcard
 - **Keyboard quirks:** modifier desync, no dead keys
 - **No reconnection:** network blip = session lost
 - **Non-1080p broken:** H.264 hardcoded to 1920x1080
 
+
 </div>
 </div>
 
-<div class="status-card status-warn mt-2">
+<div v-click class="status-card status-warn mt-2">
 
 Browsers add convenience (no install) at the cost of control. For thin-client hardware, the browser is the bottleneck — "a software monster just to decode a video."
 
@@ -963,8 +1112,6 @@ Only `INTERNET` permission. No clipboard, audio, USB, or file transfer channels.
 
 All marked `// TODO: SharedPreferences`
 
-<!-- TODO: Add screenshot/photo showing screen cropping and missing cursor on Android -->
-
 </div>
 </div>
 
@@ -987,6 +1134,8 @@ All marked `// TODO: SharedPreferences`
 </div>
 <div>
 
+<div>
+
 ### Screen Lock = Session Death
 
 1. User locks phone during session
@@ -996,12 +1145,15 @@ All marked `// TODO: SharedPreferences`
 
 **Industry standard:** auto-reconnect on resume.
 
+</div>
+
+<div>
+
 ### Two Separate Codebases
 
 Java (Android) vs Swift (iOS), Apache 2.0 vs GPLv2, 15 languages vs English-only. Every fix applied twice. **This doesn't scale.**
 
-<!-- TODO: Check with Lennard — is a new iOS version available? -->
-<!-- TODO: Add screenshot/photo showing taskbar cropping and gray bars on iOS -->
+</div>
 
 </div>
 </div>
@@ -1018,13 +1170,13 @@ Expected:                    Actual:
  → click registers           → must DRAG to target first
 ```
 
-<div class="status-card status-critical mt-4">
+<div v-click class="status-card status-critical mt-4">
 
 **Every interaction requires dragging to the target first.** In every competing app (TeamViewer, AnyDesk, RustDesk, MS RD Client), tapping moves the cursor there instantly.
 
 </div>
 
-<div class="status-card status-info mt-2">
+<div v-click class="status-card status-info mt-2">
 
 **Root cause:** `touchToMouseScript.js` only emits `mousemove` on drag, not on tap.
 **Fix:** Send `mousemove` to tap coordinates before click dispatch.
@@ -1063,6 +1215,60 @@ Expected:                    Actual:
 </div>
 
 ---
+
+# Mobile: Industry Comparison
+
+<div class="text-sm font-semibold mb-2 opacity-60">OSVDI vs what every competing app supports (TeamViewer, AnyDesk, RustDesk, MS RD Client, Citrix)</div>
+
+<div class="heatmap" style="grid-template-columns: 2.2fr repeat(3, 1fr); max-width: 600px;">
+  <div class="heatmap-header"></div>
+  <div class="heatmap-header">Industry</div>
+  <div class="heatmap-header">Android</div>
+  <div class="heatmap-header">iOS</div>
+
+  <div class="heatmap-row-label">Touch modes (direct + trackpad)</div>
+  <div class="heatmap-cell heat-full">2+ modes</div>
+  <div class="heatmap-cell heat-none">1 only</div>
+  <div class="heatmap-cell heat-none">1 only</div>
+
+  <div class="heatmap-row-label">Pinch-to-zoom + pan</div>
+  <div class="heatmap-cell heat-full">Universal</div>
+  <div class="heatmap-cell heat-none">Broken</div>
+  <div class="heatmap-cell heat-partial">0.5–1x</div>
+
+  <div class="heatmap-row-label">Fit-to-screen on connect</div>
+  <div class="heatmap-cell heat-full">Default</div>
+  <div class="heatmap-cell heat-none">Cropped</div>
+  <div class="heatmap-cell heat-partial">Gray bars</div>
+
+  <div class="heatmap-row-label">Cursor visible in mouse mode</div>
+  <div class="heatmap-cell heat-full">Always</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-partial">JS dot</div>
+
+  <div class="heatmap-row-label">Modifier keys (Ctrl, Alt, Shift)</div>
+  <div class="heatmap-cell heat-full">Toolbar</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-none">✗</div>
+
+  <div class="heatmap-row-label">Session reconnect on resume</div>
+  <div class="heatmap-cell heat-full">Auto</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-none">Dead</div>
+</div>
+
+<div class="heatmap-legend mt-2">
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#16a34a;"></div> Industry standard</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#d97706;"></div> Partial</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#dc2626;"></div> Missing</div>
+</div>
+
+<!--
+Full industry comparison: accessibility-evaluation.md
+Compared against: TeamViewer, AnyDesk, RustDesk, Microsoft RD Client, Chrome Remote Desktop, Citrix Workspace
+-->
+
+---
 layout: section
 ---
 
@@ -1079,64 +1285,160 @@ layout: section
 
 # Channel Support: Core Channels
 
-<div class="text-xs">
+<div class="heatmap mt-2" style="grid-template-columns: 1.6fr repeat(4, 1fr); max-width: 620px;">
+  <div class="heatmap-header"></div>
+  <div class="heatmap-header">Native</div>
+  <div class="heatmap-header">Browser</div>
+  <div class="heatmap-header">Mobile</div>
+  <div class="heatmap-header">FreeRDP</div>
 
-| Channel | Native | Browser | Mobile | FreeRDP |
-|---------|:------:|:-------:|:------:|:-------:|
-| **Video** | 12 codecs, HW | 3 codecs (buggy) | Via browser | Full |
-| **Audio out** | In code (untested) | Opus (hack) | **None** | Full |
-| **Audio in** | In code (untested) | **None** | **None** | Full |
-| **Clipboard** | In code (untested) | **Partial** | **None** | Full |
+  <div class="heatmap-row-label">Video</div>
+  <div class="heatmap-cell heat-full">12 HW</div>
+  <div class="heatmap-cell heat-partial">3 buggy</div>
+  <div class="heatmap-cell heat-partial">Via web</div>
+  <div class="heatmap-cell heat-full">Full</div>
 
+  <div class="heatmap-row-label">Audio out</div>
+  <div class="heatmap-cell heat-untested">?</div>
+  <div class="heatmap-cell heat-partial">Hack</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Audio in</div>
+  <div class="heatmap-cell heat-untested">?</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Clipboard</div>
+  <div class="heatmap-cell heat-untested">?</div>
+  <div class="heatmap-cell heat-partial">Partial</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
 </div>
 
-<div class="status-card status-info mt-2">
+<div class="status-card status-info mt-3">
 
 Native client has channel code in spice-gtk but **end-to-end testing is pending**. Browser loses audio input. Mobile has **no audio or clipboard at all**.
 
+</div>
+
+<div class="heatmap-legend mt-2">
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#16a34a;"></div> Works</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#2563eb;"></div> In code (untested)</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#d97706;"></div> Partial</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#dc2626;"></div> Missing</div>
 </div>
 
 ---
 
 # Channel Support: Advanced Channels
 
-<div class="text-xs">
+<div class="heatmap mt-2" style="grid-template-columns: 1.6fr repeat(4, 1fr); max-width: 620px;">
+  <div class="heatmap-header"></div>
+  <div class="heatmap-header">Native</div>
+  <div class="heatmap-header">Browser</div>
+  <div class="heatmap-header">Mobile</div>
+  <div class="heatmap-header">FreeRDP</div>
 
-| Channel | Native | Browser | Mobile | FreeRDP |
-|---------|:------:|:-------:|:------:|:-------:|
-| **USB redirect** | In code (untested) | **Impossible** | **Impossible** | Yes |
-| **File transfer** | Almost (chardev) | **UI only** | **None** | Yes |
-| **Printing** | **None** | **None** | **None** | Yes |
-| **Multi-monitor** | **Partial** | **None** | **None** | Yes |
-| **Smartcard** | In code (untested) | **None** | **None** | Yes |
+  <div class="heatmap-row-label">USB redirect</div>
+  <div class="heatmap-cell heat-untested">?</div>
+  <div class="heatmap-cell heat-impossible">N/A</div>
+  <div class="heatmap-cell heat-impossible">N/A</div>
+  <div class="heatmap-cell heat-full">✓</div>
 
+  <div class="heatmap-row-label">File transfer</div>
+  <div class="heatmap-cell heat-partial">Almost</div>
+  <div class="heatmap-cell heat-none">Fake</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Printing</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Multi-monitor</div>
+  <div class="heatmap-cell heat-partial">Partial</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Smartcard</div>
+  <div class="heatmap-cell heat-untested">?</div>
+  <div class="heatmap-cell heat-impossible">N/A</div>
+  <div class="heatmap-cell heat-impossible">N/A</div>
+  <div class="heatmap-cell heat-full">✓</div>
 </div>
 
-<div class="status-card status-critical mt-2">
+<div class="status-card status-critical mt-3">
 
 The further from native, the more channels lost. USB, printing, smartcard are **impossible** via browser/WebView. Native channels need end-to-end verification.
 
+</div>
+
+<div class="heatmap-legend mt-2">
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#374151;"></div> Impossible (browser)</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#d97706;"></div> Partial</div>
+  <div class="heatmap-legend-item"><div class="heatmap-legend-dot" style="background:#dc2626;"></div> Missing</div>
 </div>
 
 ---
 
 # Keyboard & Input Across Clients
 
-<div class="text-xs">
+<div class="heatmap mt-2" style="grid-template-columns: 2.2fr repeat(4, 1fr); max-width: 620px;">
+  <div class="heatmap-header"></div>
+  <div class="heatmap-header">Native</div>
+  <div class="heatmap-header">Browser</div>
+  <div class="heatmap-header">Mobile</div>
+  <div class="heatmap-header">FreeRDP</div>
 
-| Input Feature | Native | Browser | Mobile | FreeRDP |
-|---------------|:------:|:-------:|:------:|:-------:|
-| Full PC keyboard | Yes | Mostly | Basic chars | Yes |
-| Modifiers (Ctrl, Alt, Shift) | Yes | Yes (desync) | **Missing** | Yes |
-| Function keys (F1–F12) | Yes | Partial | **Missing** | Yes |
-| Dead keys / IME | Yes | **No** | **No** | Yes |
-| Esc key | Yes | Fullscreen conflict | **Missing** | Yes |
-| Mouse scroll | Yes | Yes | **Missing** | Yes |
-| Right-click | Yes | Yes | Two-finger tap | Yes |
+  <div class="heatmap-row-label">Full PC keyboard</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-partial">Most</div>
+  <div class="heatmap-cell heat-none">Basic</div>
+  <div class="heatmap-cell heat-full">✓</div>
 
+  <div class="heatmap-row-label">Modifiers (Ctrl, Alt, Shift)</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-partial">Desync</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Function keys (F1–F12)</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-partial">Some</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Dead keys / IME</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Esc key</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-partial">FS conflict</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Mouse scroll</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Right-click</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-partial">2-finger</div>
+  <div class="heatmap-cell heat-full">✓</div>
 </div>
 
-<div class="status-card status-warn mt-1" style="padding:0.4rem 0.75rem;">
+<div v-click class="status-card status-warn mt-2" style="padding:0.4rem 0.75rem;">
 
 **The keyboard gap is the biggest usability blocker after video.** Without Ctrl, Alt, Shift, and F-keys, users cannot copy/paste, switch windows, or use terminal shortcuts.
 
@@ -1168,7 +1470,7 @@ graph LR
     style Native fill:#4ade80,stroke:#16a34a,color:#000
 ```
 
-<div class="status-card status-warn mt-2">
+<div v-click class="status-card status-warn mt-2">
 
 **The bottleneck is the server** (only 4 codecs encoded), not the protocol. And the HTML5 client further narrows to 3 — with H.264 buggy (hardcoded 1920x1080). Native client is the only path to full codec support today.
 
@@ -1191,34 +1493,36 @@ layout: section
 
 # What's Working Well
 
-<div class="grid grid-cols-2 gap-4">
-<div>
+<div class="grid grid-cols-2 gap-3">
 
-### Server & Protocol
-- DMA-BUF zero-copy encoding — adaptive bitrate (128K–20Mbps)
-- 14 codec types defined in protocol (future-proof)
-- SPICE routing via nginx SNI — elegant
-
-### Native Client
-- Video decode works (HW-accel, 12 codecs in code)
-- Runtime codec switching UI, AppImage pipeline
-- Audio, clipboard, USB: in code, **testing pending**
-
+<div class="status-card status-success" style="padding:0.6rem 0.8rem;">
+<div class="font-bold text-sm mb-1">Server & Protocol</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>DMA-BUF zero-copy encoding — adaptive bitrate</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>14 codec types in protocol (future-proof)</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>SPICE routing via nginx SNI — elegant</div>
 </div>
-<div>
 
-### Access Gateway
-- Keycloak OIDC authentication
-- Real-time SSE desktop updates
-- Desktop management (CRUD) works
-- Admin/user role distinction
-
-### Infrastructure
-- Full observability (OTel + Grafana), measurement tools ready
-- Guest agent (clipboard, USB, file transfer code complete)
-- Multiple storage backends (NFS, Ceph RBD, DNBD3)
-
+<div class="status-card status-success" style="padding:0.6rem 0.8rem;">
+<div class="font-bold text-sm mb-1">Access Gateway</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Keycloak OIDC authentication</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Real-time SSE desktop updates</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Desktop management (CRUD) works</div>
 </div>
+
+<div class="status-card status-info" style="padding:0.6rem 0.8rem;">
+<div class="font-bold text-sm mb-1">Native Client</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Video decode works (HW-accel, 12 codecs)</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Runtime codec switching UI, AppImage CI</div>
+<div class="traffic-item"><div class="traffic-dot dot-blue"></div>Audio, clipboard, USB: in code, <b>untested</b></div>
+</div>
+
+<div class="status-card status-success" style="padding:0.6rem 0.8rem;">
+<div class="font-bold text-sm mb-1">Infrastructure</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Full observability (OTel + Grafana)</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Guest agent (clipboard, USB, file transfer)</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Multiple storage backends (NFS, Ceph, DNBD3)</div>
+</div>
+
 </div>
 
 <!--
@@ -1232,36 +1536,28 @@ Infrastructure: OTel/Grafana/storage backends confirmed from docker-compose.yaml
 
 # What's Not Working
 
-<div class="grid grid-cols-2 gap-4">
-<div>
+<div class="grid grid-cols-2 gap-3">
 
-### Critical (Blocks Basic Usage)
-
-- **spice-html5:** H.264 hardcoded 1920x1080
-- **spice-html5:** No reconnection on disconnect
-- **spice-html5:** File transfer is fake (UI only)
-- **Mobile:** Screen cropped / taskbar cut off
-- **Mobile:** No cursor visible (Android)
-- **Mobile:** No modifier keys on either platform
-- **Mobile:** iOS session dies on screen lock
-- **Gateway:** SSE token exposed in URL
-
+<div class="status-card status-critical" style="padding:0.5rem 0.8rem;">
+<div class="font-bold text-sm mb-1">Critical (Blocks Basic Usage)</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>spice-html5:</b> H.264 hardcoded 1920x1080</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>spice-html5:</b> No reconnection on disconnect</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>spice-html5:</b> File transfer fake (UI only)</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Mobile:</b> Screen cropped / no cursor</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Mobile:</b> No modifier keys, iOS session death</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Gateway:</b> SSE token exposed in URL</div>
 </div>
-<div>
 
-### Significant (Blocks Real Work)
-
-- **spice-html5:** Modifier key desync on focus loss
-- **spice-html5:** No dead key / IME input
-- **Server:** Only 4 of 14 codecs encoded
-- **Server:** No H.265/AV1 encoding despite protocol support
-- **Native:** File transfer not wired (missing chardev)
-- **Native:** Multi-monitor limited to surface 0
-- **Native:** Linux-only — no macOS / Windows builds (limits who can use it)
-- **Gateway:** No session timeout warning
-- **Mobile:** No scroll, zoom broken, no settings
-
+<div class="status-card status-warn" style="padding:0.5rem 0.8rem;">
+<div class="font-bold text-sm mb-1">Significant (Blocks Real Work)</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>spice-html5:</b> Modifier desync, no dead keys</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Server:</b> Only 4/14 codecs, no H.265/AV1</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Native:</b> File transfer not wired (chardev)</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Native:</b> Multi-monitor, Linux-only</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Gateway:</b> No session timeout warning</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Mobile:</b> No scroll, zoom broken, no settings</div>
 </div>
+
 </div>
 
 ---
@@ -1286,23 +1582,41 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
 
 # New Findings (This Evaluation)
 
-<div class="grid grid-cols-2 gap-4">
-<div>
+<div class="flex items-center gap-3 mb-2">
+<div class="text-center py-1 px-3 rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800">
+  <div class="hero-stat" style="font-size:1.8rem; background:linear-gradient(135deg,#dc2626,#f87171); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">10</div>
+  <div class="hero-stat-label" style="font-size:0.55rem;">New findings</div>
+</div>
+<div class="text-center py-1 px-3 rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800">
+  <div class="hero-stat" style="font-size:1.8rem; background:linear-gradient(135deg,#d97706,#fbbf24); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">2</div>
+  <div class="hero-stat-label" style="font-size:0.55rem;">Critical</div>
+</div>
+<div class="text-center py-1 px-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
+  <div class="hero-stat" style="font-size:1.8rem;">5</div>
+  <div class="hero-stat-label" style="font-size:0.55rem;">In spice-html5</div>
+</div>
+</div>
 
-### spice-html5
+<div class="stacked-bar mb-1">
+  <div class="stacked-segment" style="width:50%; background:#b45309;">spice-html5 (5)</div>
+  <div class="stacked-segment" style="width:20%; background:#0369a1;">Gateway (2)</div>
+  <div class="stacked-segment" style="width:10%; background:#7c3aed;">Server (1)</div>
+  <div class="stacked-segment" style="width:20%; background:#be185d;">Mobile (2)</div>
+</div>
+
+<div class="grid grid-cols-2 gap-3 text-xs">
+<div>
 
 | Finding | Severity |
 |---------|----------|
 | H.264 hardcoded 1920x1080 | Critical |
 | VideoDecoder memory leak | High |
 | No WebSocket reconnection | High |
-| File transfer is fake (UI only) | High |
+| File transfer fake (UI only) | High |
 | Modifier key desync | Medium |
 
 </div>
 <div>
-
-### Backend, Gateway & Mobile
 
 | Finding | Severity |
 |---------|----------|
@@ -1315,9 +1629,9 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
 </div>
 </div>
 
-<div class="status-card status-critical mt-2">
+<div v-click class="status-card status-critical mt-1" style="padding:0.3rem 0.75rem;">
 
-**10 new findings** across the stack — most concentrated in spice-html5, the component shared by browser and mobile clients.
+**10 new findings** across the stack — most in spice-html5, shared by browser and mobile.
 
 </div>
 
@@ -1365,7 +1679,7 @@ layout: section
 
 </div>
 
-<div class="status-card status-success mt-1" style="padding:0.4rem 0.75rem;">
+<div v-click class="status-card status-success mt-1" style="padding:0.4rem 0.75rem;">
 
 These target components the HTML5 rewrite **won't replace**. The spice-html5 bugs become input for Rafael's rewrite, not tasks to fix on 14-year-old code.
 
@@ -1388,35 +1702,31 @@ QUICK WIN DETAILS:
 <div class="grid grid-cols-2 gap-4">
 <div>
 
-### HTML5 Rewrite (Rafael)
-Feed these findings as **requirements**:
-- WebSocket reconnection logic
-- Modifier key sync on focus loss
-- Dead key / IME support
-- Real file transfer (not UI-only)
-- Image cache eviction
-- Support non-1080p resolutions
+### Native Client — Test & Polish
+- **Latency benchmarking** (native vs browser vs mobile)
+- **Bidirectional audio** — verify Opus end-to-end
+- **USB redirect** — test device classes (storage, HID)
+- **Clipboard** — verify with spice-vdagent
+- Multi-monitor beyond surface 0
+- Bundle virt-viewer for easy distribution
 
-### Access Gateway
-- Session timeout warning
-- SSE reconnection with backoff
-- Embed SPICE view (don't redirect)
-- Clipboard / file transfer UI
+### HTML5 Rewrite (Rafael — ongoing)
+Feed bugs as **rewrite requirements** (reconnection, modifiers, dead keys, non-1080p)
 
 </div>
 <div>
 
-### Native Client
-- Wire WebDAV chardev in templates
-- Multi-monitor beyond surface 0
-- Adaptive quality UI (not just env var)
-- macOS / Windows build pipeline
+### Access Gateway — Security & UX
+- Fix **32 vulnerabilities** found (see security-findings.md)
+- SSE token → cookie-based auth
+- Session timeout warning
+- Embed SPICE view (don't redirect)
+- Clipboard / file transfer UI
 
-### Mobile Apps
-- Fit-to-screen scaling
-- Visible cursor (Android)
-- Modifier key bar overlay
-- Fix pinch-to-zoom
+### Mobile & Desktop Apps
+- Cross-platform approach (Flutter PoC if latency OK)
+- Desktop app shell bundling virt-viewer
+- Mobile: screen scaling, modifier bar, pinch-zoom
 - iOS: session survive screen lock
 
 </div>
@@ -1431,32 +1741,30 @@ Feed these findings as **requirements**:
 
 ### Why Not Ignore Native Clients?
 
+
 - Browser adds latency (buffering, event loop, compositor)
 - Browser limits keyboard (ESC, Alt, F-keys intercepted)
 - **Thin clients** need lightweight rendering, not a browser
 - Channels (USB, printing, security tokens) require native access
-- HTML5 rewrite is a clean-slate opportunity
 
-<div class="status-card status-warn mt-1" style="padding:0.3rem 0.6rem;">
-
-**Open question:** How hard are macOS/Windows native builds? spice-gtk is cross-platform, but only Linux AppImage exists today.
-
-</div>
 
 </div>
 <div>
 
 ### Why Browser Still Matters
 
+
 - Zero install — immediate access
 - Cross-platform by default
-- Gateway UI already web-based
 - Sufficient for casual / light use
 - Students accessing from any device
 
-### The Balance
 
-Native for **primary work** (performance, full channels). Browser for **convenience access** (quick checks, any device).
+<div class="status-card status-success mt-2" style="padding:0.4rem 0.75rem;">
+
+**The Balance:** Native for **primary work** (performance, full channels). Browser for **convenience access** (quick checks, any device).
+
+</div>
 
 </div>
 </div>
@@ -1465,28 +1773,75 @@ Native for **primary work** (performance, full channels). Browser for **convenie
 
 # Roadmap
 
-```mermaid {scale: 0.65}
-gantt
-  title Improvement Phases
-  dateFormat YYYY-MM-DD
-  axisFormat %b %d
-  section Quick Wins (~1-2 wks)
-    WebDAV chardev + SSE fix :a1, 2026-06-01, 5d
-    Mobile tap-to-click      :a2, 2026-06-03, 5d
-    Android back button      :a3, 2026-06-03, 3d
-  section HTML5 Rewrite Requirements
-    Feed bugs to Rafael      :b1, 2026-06-09, 7d
-    Coordinate on API needs  :b2, 2026-06-16, 7d
-  section Mobile MVP (~4-6 wks)
-    Screen scaling + cursor  :c1, 2026-06-09, 14d
-    Modifier key bar         :c2, 2026-06-16, 14d
-    Pinch-zoom + pan         :c3, 2026-06-23, 14d
-    iOS session survival     :c4, 2026-06-23, 10d
-  section Native + Gateway
-    Multi-monitor fix        :d1, 2026-07-14, 21d
-    Gateway UX improvements  :d2, 2026-07-14, 14d
-    macOS/Windows builds     :d3, 2026-08-01, 28d
-```
+<div class="text-xs">
+
+<div class="flex items-center gap-2 mb-3">
+  <div class="text-sm font-bold opacity-50">Jun</div>
+  <div class="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+  <div class="text-sm font-bold opacity-50">Jul</div>
+  <div class="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+  <div class="text-sm font-bold opacity-50">Aug</div>
+  <div class="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+  <div class="text-sm font-bold opacity-50">Sep</div>
+</div>
+
+<div class="mb-3">
+<div class="font-bold text-green-500 mb-1">Phase 1: Quick Wins + Infra Fixes (1–2 weeks)</div>
+<div class="flex gap-1 mb-1">
+  <div class="rounded px-2 py-0.5 text-white" style="background:#16a34a; width:15%;">WebDAV chardev</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#22c55e; width:15%;">SSE token fix</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#4ade80; color:#000; width:12%;">Back button</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#86efac; color:#000; width:15%;">Tap-to-click</div>
+</div>
+</div>
+
+<div class="mb-3">
+<div class="font-bold text-blue-500 mb-1">Phase 2: Native Client Testing & Polish (4–6 weeks)</div>
+<div class="flex gap-1 mb-1">
+  <div style="width:8%;"></div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#1d4ed8; width:22%;">Latency benchmarks</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#2563eb; width:22%;">Audio bidirectional</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#3b82f6; width:18%;">USB / clipboard</div>
+</div>
+<div class="flex gap-1">
+  <div style="width:15%;"></div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#60a5fa; color:#000; width:20%;">Codec comparison</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#93c5fd; color:#000; width:18%;">Multi-monitor</div>
+</div>
+</div>
+
+<div class="mb-3">
+<div class="font-bold text-red-500 mb-1">Phase 3: Gateway Security & UX (parallel, 4–6 weeks)</div>
+<div class="flex gap-1 mb-1">
+  <div style="width:8%;"></div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#dc2626; width:25%;">Fix 32 vulnerabilities</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#ef4444; width:20%;">SSE auth fix</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#f87171; color:#000; width:20%;">UX polish</div>
+</div>
+</div>
+
+<div class="mb-3">
+<div class="font-bold text-purple-500 mb-1">Phase 4: App Strategy — Mobile + Desktop + Bundling (6–10 weeks)</div>
+<div class="flex gap-1 mb-1">
+  <div style="width:30%;"></div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#7c3aed; width:22%;">Cross-platform PoC</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#8b5cf6; width:20%;">Bundle virt-viewer</div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#a78bfa; color:#000; width:22%;">Desktop app</div>
+</div>
+<div class="flex gap-1">
+  <div style="width:35%;"></div>
+  <div class="rounded px-2 py-0.5 text-white" style="background:#6d28d9; width:25%;">Mobile MVP (scaling, KB)</div>
+</div>
+</div>
+
+<div class="mb-1">
+<div class="font-bold opacity-40 mb-1">Parallel: Rafael's HTML5 Rewrite (ongoing — not this project)</div>
+<div class="flex gap-1 mb-1">
+  <div class="rounded px-2 py-0.5 opacity-50" style="background:#9ca3af; color:white; width:95%;">Feed bugs as requirements — coordinate on API changes affecting mobile bridges</div>
+</div>
+</div>
+
+</div>
 
 ---
 
@@ -1518,6 +1873,79 @@ gantt
 | USB/printing/security tokens required | Must go native — impossible via browser |
 | Two mobile codebases diverge further | Unify via cross-platform framework |
 | Thin client hardware can't run browser | Native client is the only option |
+
+---
+
+# Mobile: Cross-Platform Strategy
+
+<div class="grid grid-cols-2 gap-4">
+<div>
+
+<div class="text-sm font-semibold mb-2 opacity-60">Current: 2 codebases → not sustainable</div>
+
+<div class="heatmap" style="grid-template-columns: 2fr repeat(3, 1fr); max-width: 480px;">
+  <div class="heatmap-header"></div>
+  <div class="heatmap-header">Separate</div>
+  <div class="heatmap-header">Flutter</div>
+  <div class="heatmap-header">KMP</div>
+
+  <div class="heatmap-row-label">Android + iOS</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-full">✓</div>
+  <div class="heatmap-cell heat-full">✓</div>
+
+  <div class="heatmap-row-label">Desktop (Win/Mac/Linux)</div>
+  <div class="heatmap-cell heat-none">3 more repos</div>
+  <div class="heatmap-cell heat-full">Built-in</div>
+  <div class="heatmap-cell heat-partial">Partial</div>
+
+  <div class="heatmap-row-label">WebView support</div>
+  <div class="heatmap-cell heat-full">Native</div>
+  <div class="heatmap-cell heat-full">Plugin</div>
+  <div class="heatmap-cell heat-none">None</div>
+
+  <div class="heatmap-row-label">Shared codebase</div>
+  <div class="heatmap-cell heat-none">✗</div>
+  <div class="heatmap-cell heat-full">1 repo</div>
+  <div class="heatmap-cell heat-partial">Logic only</div>
+
+  <div class="heatmap-row-label">Thin-client friendly</div>
+  <div class="heatmap-cell heat-partial">Varies</div>
+  <div class="heatmap-cell heat-full">AOT native</div>
+  <div class="heatmap-cell heat-full">JVM/native</div>
+</div>
+
+</div>
+<div>
+
+<div class="status-card status-info" style="padding:0.5rem 0.8rem;">
+
+**Conditional recommendation: Flutter + WebView**
+
+If WebView latency < 80ms → single codebase for all 6 platforms. JS bridges transfer directly, native channels via platform channels.
+
+</div>
+
+<div class="text-xs mt-2 opacity-80">
+
+**Migration:** Flutter foundation (mobile parity) → desktop expansion → advanced channels → optimization
+
+</div>
+
+<div class="status-card status-warn mt-2" style="padding:0.3rem 0.8rem;">
+
+**Blocker:** need WebView latency benchmarks. If > 80ms → FFI to libspice-gtk instead.
+
+</div>
+
+</div>
+</div>
+
+<!--
+Full analysis: cross-platform-strategy.md
+Flutter chosen over KMP because: unified WebView component across all platforms, AOT compilation for thin clients, desktop support more mature, hot reload for rapid dev. KMP lacks a multiplatform WebView component entirely.
+Conditional on latency: if WebView adds >80ms, the whole approach fails and native rendering via FFI to libspice-gtk is needed instead.
+-->
 
 ---
 layout: center
