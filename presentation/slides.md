@@ -39,12 +39,15 @@ exportFilename: osvdi-evaluation-presentation
 <div class="cover-decoration"></div>
 
 <div class="mt-4">
-<span class="text-cyan-400 text-sm font-mono tracking-widest uppercase">Study Project — eScience Department</span>
+<span class="text-cyan-600 dark:text-cyan-400 text-sm font-mono tracking-widest uppercase">Study Project — eScience Department</span>
 </div>
 
 # Evaluation and Improvements of<br/>Remote Access in OSVDI
 
-<div class="mt-2 text-xl text-gray-300 font-light">First Milestone — Comprehensive Evaluation</div>
+<div class="mt-2 text-xl text-gray-500 dark:text-gray-300 font-light">First Milestone — Comprehensive Evaluation</div>
+
+<div class="mt-4 text-sm font-semibold text-gray-600 dark:text-gray-300">Bishwajeet Parhi</div>
+<div class="text-xs text-gray-400 dark:text-gray-400">eScience Department, Computer Center, University of Freiburg</div>
 
 
 ---
