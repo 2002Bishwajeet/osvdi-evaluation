@@ -103,6 +103,8 @@ The **native client** (`remote-viewer`) serves as the **ground truth baseline** 
 
 The user must force-quit and relaunch the app to recover. The WKWebView likely loses its connection or page state when the app is suspended during screen lock, and does not handle reloading gracefully.
 
+**Update (2026-06):** Fixed upstream — commit `12322e9` ("Added lost connection recovery", 2026-05-27) adds a `scenePhase` `.active` handler (`ContentView.swift:220-226`) that regenerates the WebView id to reload on resume. Recovery is a **full page reload (new SPICE session)**, not a state-preserving resume, and only fires inside a SPICE (landscape) session.
+
 | Problem | Impact | Expected (industry standard) |
 |---------|--------|------------------------------|
 | Infinite loading after back navigation | Medium — requires app restart | Graceful disconnect, return to VM selection |
@@ -311,7 +313,7 @@ Phase 3: Make it competitive (Premium)            ongoing
 
 The OSVDI WebView wrapper apps are **functional but significantly behind industry standards** for mobile remote desktop UX. Critical issues include cropped/unscaled remote desktop viewport, missing mouse cursor (Android), broken zoom, and absent modifier keys.
 
-Compared to industry leaders (TeamViewer, AnyDesk, RustDesk, MS RD Client, Chrome Remote Desktop, Citrix), the Android app scores **29%** and iOS scores **39%** on accessibility feature completeness.
+Compared to industry leaders (TeamViewer, AnyDesk, RustDesk, MS RD Client, Chrome Remote Desktop, Citrix), the Android app scores **20%** (10/50) and iOS scores **30%** (15/50) on accessibility feature completeness.
 
 ### What Must Happen First
 

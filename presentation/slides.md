@@ -277,7 +277,7 @@ graph LR
     FE -->|"redirect to<br/>web_client_url"| SPICE_HTML5[spice-html5<br/>9.5K LOC JS]
     SPICE_HTML5 -->|WebSocket binary| QEMU[QEMU/KVM<br/>Compute Nodes]
 
-    NativeClient[virt-viewer<br/>AppImage] -->|"Direct SPICE<br/>9 channels"| QEMU
+    NativeClient[virt-viewer<br/>AppImage] -->|"Direct SPICE<br/>10 channels"| QEMU
     MobileApp[Mobile WebView<br/>Android/iOS] -->|"Loads osvdi-fe<br/>then spice-html5"| SPICE_HTML5
 
     Backend -->|libvirt| QEMU
@@ -301,7 +301,7 @@ graph LR
 </div>
 <div class="funnel-arrow">→</div>
 <div class="funnel-step">
-  <div class="funnel-number text-green-500">12</div>
+  <div class="funnel-number text-green-500">14</div>
   <div class="funnel-label">Native</div>
   <div class="funnel-sublabel">Can decode</div>
 </div>
@@ -325,21 +325,21 @@ graph LR
 |-------|:------:|:------:|:-----:|------|
 | **MJPEG** | Yes | Yes | Yes | Universal fallback |
 | **VP8** | Yes | Yes | Yes | MediaSource API |
-| **H.264** | Yes (HW) | Yes (HW) | Buggy | Hardcoded 1920x1080 |
+| **H.264** | Yes (HW) | Yes (HW) | Buggy | Canvas-sizing bug (not 1080p-limited) |
 | **VP9** | Yes | Yes | **No** | — |
-| **H.265 / AV1** | **No** | Yes | **No** | Protocol-only |
+| **H.265 / AV1** | Exp.† | Yes | **No** | †SW encoder landed on a feature branch |
 
 </div>
 
 <!--
-VERIFIED BY CODE REVIEW (not hands-on streaming tests):
-- Protocol: 14 types defined in spice-protocol/spice/enums.h (lines 147-164)
-- Server: only 4 codecs wired in osvdi-spice/server/reds.cpp (lines 3581-3594). H.265/AV1 have unused string entries but no GStreamer encoder path
-- Server encoders: MJPEG=avenc_mjpeg, VP8=vp8enc, VP9=vp9enc, H.264=x264enc (gstreamer-encoder.c:911-928)
-- Native (spice-gtk): all 14 types have GStreamer decoders registered (channel-display-priv.h:182-259), including H.265 and AV1
-- HTML5: only VP8 (MediaSource) + MJPEG (Canvas) + H.264 (WebCodecs, hardcoded 1920x1080 at display.js:1210-1212). VP9/H.265/AV1 NOT handled
-- H.264 in HTML5 confirmed hardcoded: codedWidth:1920, codedHeight:1080 in VideoDecoder.configure()
-- HOW TO VERIFY: use virt-viewer's runtime codec selector (virt-viewer-app.c:3162) to switch codecs live and observe quality/latency
+VERIFIED BY CODE REVIEW (re-checked against current branches 2026-06-10):
+- Protocol: 14 types defined in spice-protocol/spice/enums.h (lines 148-161)
+- Server (stable/master): encodes 4 — MJPEG=avenc_mjpeg, VP8=vp8enc, VP9=vp9enc, H.264=x264enc (gstreamer-encoder.c:911-928, reds.cpp:3581-3594)
+- Server (feature branch gstreamer_va_improvements, May 2026): codec table grew to 10 — adds H.265=x265enc, AV1=av1enc + 4:4:4 variants (reds.cpp:3582-3606). SOFTWARE encoders, commit labelled "HACK", NOT yet on master. >>> CONFIRM which branch demo.osvdi runs to state the real number <<<
+- Native (spice-gtk): all 14 types have GStreamer decoders registered (channel-display-priv.h:192-259), including H.265 and AV1
+- HTML5: only VP8 (MediaSource) + MJPEG (Canvas) + H.264 (WebCodecs at display.js:1209-1212). VP9/H.265/AV1 NOT handled
+- H.264 HTML5: codedWidth/Height in VideoDecoder.configure() are HINTS; real frame size comes from the SPS, so non-1080p still decodes. The visible gray-area artifact is canvas pinned to server surface height + drawing onto the wrong canvas (display.js:528-530, 1199-1202) — NOT a resolution-decode failure
+- HOW TO VERIFY: use virt-viewer's runtime codec selector (virt-viewer-app.c:3162) to switch codecs live and observe which codecs the server actually offers
 -->
 
 ---
@@ -388,7 +388,7 @@ VERIFIED BY CODE REVIEW (not hands-on streaming tests):
 
   <div class="heatmap-row-label">File Transfer (WebDAV)</div>
   <div class="heatmap-cell heat-partial">Almost</div>
-  <div class="heatmap-cell heat-none">Fake</div>
+  <div class="heatmap-cell heat-untested">In code</div>
   <div class="heatmap-cell heat-none">✗</div>
   <div class="heatmap-cell heat-full">✓</div>
 
@@ -435,6 +435,8 @@ Guest GPU → DMA-BUF → GStreamer HW encode → network
 
 **Latency: 6–50ms** ← **3–10× faster**
 
+<span class="text-xs opacity-60">OSVDI-reported figures — not yet independently benchmarked</span>
+
 </div>
 </div>
 
@@ -476,7 +478,7 @@ layout: section
 
 
 - FreeRDP / MS Remote Desktop: full channels, smooth experience, auto-reconnect
-- bwLehrpool (Guacamole): VNC-based, no audio, no file access — but simple and reliable
+- bwLehrpool (Guacamole): VNC — its deployment has no audio/file (Guacamole itself can) — simple, reliable
 - Expectation: everything "just works" on any device
 
 
@@ -492,7 +494,7 @@ layout: section
 **What would a SPICE user familiar with the native client expect in web/mobile?**
 
 
-- `remote-viewer`: all 9 channels, HW-accelerated decode, full keyboard
+- `remote-viewer`: 10/11 channels, HW decode, full keyboard
 - Expectation: web/mobile variants should approach native quality
 - Reality: significant gap
 
@@ -510,7 +512,7 @@ layout: section
 
 <!--
 METHODOLOGY:
-- Ground truth 1 (RDP user): based on hands-on experience with bwLehrpool/Guacamole at demo.osvdi.uni-freiburg.de and FreeRDP documentation. bwLehrpool is VNC-based via Guacamole — no audio, no file transfer, but reliable and zero-install
+- Ground truth 1 (RDP user): based on hands-on experience with bwLehrpool/Guacamole at demo.osvdi.uni-freiburg.de and FreeRDP documentation. bwLehrpool is VNC-based via Guacamole — its deployment exposes no audio/file transfer to users (Guacamole itself supports VNC audio via PulseAudio + SFTP file transfer), but reliable and zero-install
 - Ground truth 2 (SPICE native): based on code review of spice-gtk + virt-viewer repos and testing the AppImage on WSL2 (Linux). Channel capabilities confirmed from source code, not all channels tested end-to-end
 - Evaluation devices: macOS laptop (browser testing), Windows laptop with WSL2 (native client), Android phone, iOS phone/iPad
 - All testing done against demo.osvdi.uni-freiburg.de
@@ -734,11 +736,11 @@ layout: section
 
 | Channel | Code | Tested |
 |---------|:----:|:------:|
-| Display (12 codecs, HW) | Yes | **Works** |
+| Display (14 codecs, HW) | Yes | **Works** |
 | Keyboard + mouse | Yes | **Works** |
 | Audio bidirectional (Opus) | Yes | **Not verified** |
 | Clipboard (GTK) | Yes | **Not verified** |
-| USB redirect (15 ports) | Yes | **Not verified** |
+| USB redirect | Yes | **Not verified** |
 | Smartcard | Yes | **Not verified** |
 
 <span class="text-xs opacity-60">Code = implemented in spice-gtk. Testing needed.</span>
@@ -787,7 +789,7 @@ TESTING NOTES:
 |-----|--------|--------|
 | **File transfer (WebDAV)** | Code complete but VM template **missing chardev** | High — one config line fix |
 | **Printing** | Not implemented anywhere in stack | Medium |
-| **Multi-monitor** | FIXME — only primary surface 0 *(ask Rafael/Michael)* | High for desktop users |
+| **Multi-monitor** | Server streams only primary surface — limits *all* clients, not just native | High for desktop users |
 | **AppImage packaging** | Missing `libva` deps, FUSE issues in WSL2 | High — blocks adoption |
 | **Connection UX** | No "copy URI" button — must dig through DevTools to get `spice://` URL | High — no onboarding |
 | **macOS / Windows builds** | Only Linux AppImage — build feasibility TBD | High — limits reach |
@@ -929,10 +931,10 @@ layout: section
 
 | Bug | Severity | Location |
 |-----|----------|----------|
-| H.264 resolution **hardcoded 1920x1080** | Critical | `display.js:1210` |
+| H.264 canvas pinned to server surface size (gray area) | Medium | `display.js:528,1199` |
 | VideoDecoder **never closed** (memory leak) | High | `display.js:1196` |
 | **No WebSocket reconnection** on disconnect | High | `spiceconn.js:88` |
-| File transfer is **UI-only**, no actual upload | High | `filexfer.js` |
+| File transfer needs WebDAV chardev (client code complete) | Medium | `main.js` |
 | Modifier key state **desyncs** on focus loss | Medium | `inputs.js:32` |
 | **No dead key / IME** for non-Latin input | Medium | `code_to_scancode.js` |
 | Audio timestamp **hack** for Firefox | Medium | `playback.js:105` |
@@ -965,7 +967,7 @@ layout: section
 - **Missing channels:** USB, file transfer, printing, record, smartcard
 - **Keyboard quirks:** modifier desync, no dead keys
 - **No reconnection:** network blip = session lost
-- **Non-1080p broken:** H.264 hardcoded to 1920x1080
+- **Canvas-sizing bug:** H.264 pins canvas to server surface height (gray area) — not a resolution-decode failure
 
 
 </div>
@@ -1014,7 +1016,7 @@ Browsers add convenience (no install) at the cost of control. For thin-client ha
 
 - SPICE canvas does **not fill** the browser viewport
 - Gray band at bottom — wasted screen real estate
-- Likely caused by hardcoded 1920x1080 resolution
+- Caused by canvas pinned to the server surface height, not the H.264 config
 - Does not adapt to actual browser window size
 
 <div class="status-card status-warn mt-2" style="padding:0.4rem 0.75rem;">
@@ -1050,7 +1052,7 @@ layout: section
 ┌──────────────────────┐
 │ Native App Shell     │
 │ (Java or Swift)      │
-│ ~1,300 LOC each      │
+│ ~840 / ~1,360 LOC    │
 │ ┌──────────────────┐ │
 │ │ WebView          │ │
 │ │ spice-html5      │ │
@@ -1091,7 +1093,7 @@ Only `INTERNET` permission. No clipboard, audio, USB, or file transfer channels.
 |-------|----------|
 | Screen **cropped** — content unreachable | Critical |
 | **No cursor visible** anywhere | Critical |
-| **No back button** — trapped in session | High |
+| Back button hidden in overlay, only reloads default URL | Medium |
 | Pinch-to-zoom **broken** (TODO in code) | High |
 | No modifier keys (Ctrl, Alt, Shift) | High |
 | No scroll gesture | High |
@@ -1126,8 +1128,8 @@ All marked `// TODO: SharedPreferences`
 |-------|----------|
 | **Taskbar cropped** at bottom | High |
 | Gray bars on sides (wasted space) | Medium |
-| **Infinite loading** after screen lock | High |
-| Forced landscape only | Medium |
+| Resume reloads (new session) | Medium |
+| Forced landscape only (Info.plist) | Medium |
 | No modifier keys (Ctrl, Alt, Shift) | High |
 | No scroll gesture | High |
 
@@ -1136,14 +1138,13 @@ All marked `// TODO: SharedPreferences`
 
 <div>
 
-### Screen Lock = Session Death
+### Screen Lock → Auto-Reload *(fixed May 2026)*
 
-1. User locks phone during session
-2. WKWebView **loses state** when suspended
-3. Unlock → stuck on "Loading..." forever
-4. Must **force-quit** and relaunch
+1. Lock/suspend → WKWebView loses state
+2. Unlock → `scenePhase` handler **reloads** WebView (`ContentView.swift:220`)
+3. Reconnects as a **new** session — not state-preserving
 
-**Industry standard:** auto-reconnect on resume.
+Recently fixed; still not a seamless resume.
 
 </div>
 
@@ -1151,7 +1152,7 @@ All marked `// TODO: SharedPreferences`
 
 ### Two Separate Codebases
 
-Java (Android) vs Swift (iOS), Apache 2.0 vs GPLv2, 15 languages vs English-only. Every fix applied twice. **This doesn't scale.**
+Java (Android) vs Swift (iOS), 15 languages vs English-only. The "shared" JS is copy-pasted and has **already diverged** (cursor model differs). Every fix applied twice — **doesn't scale.**
 
 </div>
 
@@ -1172,14 +1173,14 @@ Expected:                    Actual:
 
 <div v-click class="status-card status-critical mt-4">
 
-**Every interaction requires dragging to the target first.** In every competing app (TeamViewer, AnyDesk, RustDesk, MS RD Client), tapping moves the cursor there instantly.
+**Every interaction requires dragging to the target first.** In most competing apps' direct-touch mode (TeamViewer, AnyDesk, MS RD Client), tapping moves the cursor there instantly.
 
 </div>
 
 <div v-click class="status-card status-info mt-2">
 
-**Root cause:** `touchToMouseScript.js` only emits `mousemove` on drag, not on tap.
-**Fix:** Send `mousemove` to tap coordinates before click dispatch.
+**Root cause:** a tap *does* dispatch a click (`touchToMouseScript.js:397`), but at the **current** cursor position — `onTouchStart` never teleports the cursor to the tap point (`:303`).
+**Fix:** set `cursorX/cursorY` to the touch coordinates before dispatching the click.
 
 </div>
 
@@ -1218,7 +1219,7 @@ Expected:                    Actual:
 
 # Mobile: Industry Comparison
 
-<div class="text-sm font-semibold mb-2 opacity-60">OSVDI vs what every competing app supports (TeamViewer, AnyDesk, RustDesk, MS RD Client, Citrix)</div>
+<div class="text-sm font-semibold mb-2 opacity-60">OSVDI vs what most competing apps support (TeamViewer, AnyDesk, RustDesk, MS RD Client, Citrix)</div>
 
 <div class="heatmap" style="grid-template-columns: 2.2fr repeat(3, 1fr); max-width: 600px;">
   <div class="heatmap-header"></div>
@@ -1254,7 +1255,7 @@ Expected:                    Actual:
   <div class="heatmap-row-label">Session reconnect on resume</div>
   <div class="heatmap-cell heat-full">Auto</div>
   <div class="heatmap-cell heat-none">✗</div>
-  <div class="heatmap-cell heat-none">Dead</div>
+  <div class="heatmap-cell heat-partial">Reload</div>
 </div>
 
 <div class="heatmap-legend mt-2">
@@ -1349,7 +1350,7 @@ Native client has channel code in spice-gtk but **end-to-end testing is pending*
 
   <div class="heatmap-row-label">File transfer</div>
   <div class="heatmap-cell heat-partial">Almost</div>
-  <div class="heatmap-cell heat-none">Fake</div>
+  <div class="heatmap-cell heat-untested">In code</div>
   <div class="heatmap-cell heat-none">✗</div>
   <div class="heatmap-cell heat-full">✓</div>
 
@@ -1456,7 +1457,7 @@ graph LR
     subgraph Server["Server Encodes (4)"]
         S[MJPEG, VP8, H.264, VP9]
     end
-    subgraph Native["Native Decodes (12)"]
+    subgraph Native["Native Decodes (14)"]
         N[All standard + 4:4:4 + upsampled]
     end
     subgraph HTML5["HTML5 Decodes (3 reliably)"]
@@ -1472,7 +1473,7 @@ graph LR
 
 <div v-click class="status-card status-warn mt-2">
 
-**The bottleneck is the server** (only 4 codecs encoded), not the protocol. And the HTML5 client further narrows to 3 — with H.264 buggy (hardcoded 1920x1080). Native client is the only path to full codec support today.
+**The bottleneck is the server** (4 codecs on stable; H.265/AV1/4:4:4 software encoders have started landing on a feature branch), not the protocol. The HTML5 client narrows further to 3. The native client is the only path to full codec support today.
 
 </div>
 
@@ -1511,7 +1512,7 @@ layout: section
 
 <div class="status-card status-info" style="padding:0.6rem 0.8rem;">
 <div class="font-bold text-sm mb-1">Native Client</div>
-<div class="traffic-item"><div class="traffic-dot dot-green"></div>Video decode works (HW-accel, 12 codecs)</div>
+<div class="traffic-item"><div class="traffic-dot dot-green"></div>Video decode works (HW-accel, 14 codecs)</div>
 <div class="traffic-item"><div class="traffic-dot dot-green"></div>Runtime codec switching UI, AppImage CI</div>
 <div class="traffic-item"><div class="traffic-dot dot-blue"></div>Audio, clipboard, USB: in code, <b>untested</b></div>
 </div>
@@ -1540,11 +1541,11 @@ Infrastructure: OTel/Grafana/storage backends confirmed from docker-compose.yaml
 
 <div class="status-card status-critical" style="padding:0.5rem 0.8rem;">
 <div class="font-bold text-sm mb-1">Critical (Blocks Basic Usage)</div>
-<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>spice-html5:</b> H.264 hardcoded 1920x1080</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>spice-html5:</b> H.264 canvas-sizing gray area</div>
 <div class="traffic-item"><div class="traffic-dot dot-red"></div><b>spice-html5:</b> No reconnection on disconnect</div>
-<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>spice-html5:</b> File transfer fake (UI only)</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>spice-html5:</b> File xfer code OK — needs server chardev</div>
 <div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Mobile:</b> Screen cropped / no cursor</div>
-<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Mobile:</b> No modifier keys, iOS session death</div>
+<div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Mobile:</b> No modifier keys; tap doesn't move cursor</div>
 <div class="traffic-item"><div class="traffic-dot dot-red"></div><b>Gateway:</b> SSE token exposed in URL</div>
 </div>
 
@@ -1553,7 +1554,7 @@ Infrastructure: OTel/Grafana/storage backends confirmed from docker-compose.yaml
 <div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>spice-html5:</b> Modifier desync, no dead keys</div>
 <div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Server:</b> Only 4/14 codecs, no H.265/AV1</div>
 <div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Native:</b> File transfer not wired (chardev)</div>
-<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Native:</b> Multi-monitor, Linux-only</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Native:</b> Linux-only; multi-monitor blocked server-side</div>
 <div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Gateway:</b> No session timeout warning</div>
 <div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Mobile:</b> No scroll, zoom broken, no settings</div>
 </div>
@@ -1588,7 +1589,7 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
   <div class="hero-stat-label" style="font-size:0.55rem;">New findings</div>
 </div>
 <div class="text-center py-1 px-3 rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800">
-  <div class="hero-stat" style="font-size:1.8rem; background:linear-gradient(135deg,#d97706,#fbbf24); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">2</div>
+  <div class="hero-stat" style="font-size:1.8rem; background:linear-gradient(135deg,#d97706,#fbbf24); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">1</div>
   <div class="hero-stat-label" style="font-size:0.55rem;">Critical</div>
 </div>
 <div class="text-center py-1 px-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
@@ -1609,10 +1610,10 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
 
 | Finding | Severity |
 |---------|----------|
-| H.264 hardcoded 1920x1080 | Critical |
+| H.264 canvas-sizing gray area | Medium |
 | VideoDecoder memory leak | High |
 | No WebSocket reconnection | High |
-| File transfer fake (UI only) | High |
+| File xfer needs WebDAV chardev (code OK) | Medium |
 | Modifier key desync | Medium |
 
 </div>
@@ -1637,10 +1638,10 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
 
 <!--
 DETAILS ON EACH NEW FINDING:
-- H.264 hardcoded 1920x1080: display.js:1210 — VideoDecoder.configure() has codedWidth:1920, codedHeight:1080. Any non-1080p VM breaks video decoding
+- H.264 canvas sizing: display.js:1209-1212 sets codedWidth/Height:1920x1080 in VideoDecoder.configure(), but those are HINTS — real frame size comes from the H.264 SPS, so non-1080p still decodes. The visible gray-area artifact is the canvas pinned to the server surface height (display.js:528-530) + the decoder drawing onto the first/wrong canvas (display.js:1199-1202). Medium canvas-sizing bug, not a decode failure.
 - VideoDecoder memory leak: display.js:1196 — new VideoDecoder created but never closed. Over time, browser tab memory grows unbounded
 - No WebSocket reconnection: spiceconn.js:88 — on disconnect, connection is simply dropped. No retry logic. One network blip = session lost
-- File transfer fake: filexfer.js — UI exists (file picker, progress bar) but no actual upload/download implementation behind it
+- File transfer: spice-html5 main.js DOES implement chunked upload (file_xfer_read sends VD_AGENT_FILE_XFER_DATA); filexfer.js is only the drag/drop + progress UI. It is unverified end-to-end on OSVDI and blocked by the same missing org.spice-space.webdav.0 chardev as the native client. NOT a fake/stub.
 - Modifier key desync: inputs.js:32 — when browser tab loses focus while Ctrl/Alt/Shift is held, key-up event is missed. Guest VM thinks modifier is still pressed
 - SSE token in URL: osvdi-fe passes access_token as query parameter to EventSource. Visible in browser history, server logs, referrer headers. EventSource API doesn't support headers — this is a known API limitation, but should use cookie-based auth instead
 - SPICE binds 0.0.0.0: backend starts SPICE listener on all interfaces instead of localhost. Any network-adjacent host can connect
@@ -1717,7 +1718,7 @@ Feed bugs as **rewrite requirements** (reconnection, modifiers, dead keys, non-1
 <div>
 
 ### Access Gateway — Security & UX
-- Fix **32 vulnerabilities** found (see security-findings.md)
+- Fix **32 candidate issues** (static analysis, not pen-tested — see security-findings.md)
 - SSE token → cookie-based auth
 - Session timeout warning
 - Embed SPICE view (don't redirect)
@@ -1896,13 +1897,13 @@ Feed bugs as **rewrite requirements** (reconnection, modifiers, dead keys, non-1
 
   <div class="heatmap-row-label">Desktop (Win/Mac/Linux)</div>
   <div class="heatmap-cell heat-none">3 more repos</div>
-  <div class="heatmap-cell heat-full">Built-in</div>
+  <div class="heatmap-cell heat-partial">Win/Mac; Linux gap</div>
   <div class="heatmap-cell heat-partial">Partial</div>
 
   <div class="heatmap-row-label">WebView support</div>
   <div class="heatmap-cell heat-full">Native</div>
-  <div class="heatmap-cell heat-full">Plugin</div>
-  <div class="heatmap-cell heat-none">None</div>
+  <div class="heatmap-cell heat-partial">Mobile✓ desktop CEF</div>
+  <div class="heatmap-cell heat-partial">Community</div>
 
   <div class="heatmap-row-label">Shared codebase</div>
   <div class="heatmap-cell heat-none">✗</div>
@@ -1922,7 +1923,7 @@ Feed bugs as **rewrite requirements** (reconnection, modifiers, dead keys, non-1
 
 **Conditional recommendation: Flutter + WebView**
 
-If WebView latency < 80ms → single codebase for all 6 platforms. JS bridges transfer directly, native channels via platform channels.
+If WebView latency is acceptable → one codebase for mobile + Win/macOS desktop (Linux WebView is community-only, e.g. CEF). JS bridges transfer directly, native channels via platform channels.
 
 </div>
 
@@ -1943,7 +1944,7 @@ If WebView latency < 80ms → single codebase for all 6 platforms. JS bridges tr
 
 <!--
 Full analysis: cross-platform-strategy.md
-Flutter chosen over KMP because: unified WebView component across all platforms, AOT compilation for thin clients, desktop support more mature, hot reload for rapid dev. KMP lacks a multiplatform WebView component entirely.
+Flutter favored over KMP for: larger ecosystem, official MOBILE WebView (webview_flutter), AOT for thin clients, hot reload. Caveat: neither has a first-party DESKTOP WebView — Flutter desktop WebView is community (CEF / WebKitGTK separate-window) and KMP has community options (compose-webview-multiplatform, JxBrowser). Justify Flutter on ecosystem/mobile maturity, not a WebView gap both share.
 Conditional on latency: if WebView adds >80ms, the whole approach fails and native rendering via FFI to libspice-gtk is needed instead.
 -->
 
