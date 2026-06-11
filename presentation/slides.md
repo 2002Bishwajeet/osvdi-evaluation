@@ -676,9 +676,9 @@ Gateway tested on demo.osvdi.uni-freiburg.de. Isabela's updated UI is on dev.osv
 | No retry/backoff on SSE reconnection | Medium | Known |
 | Backend binds SPICE on `0.0.0.0` | Medium | New |
 
-<div class="status-card status-warn mt-2" style="padding:0.5rem 0.75rem;">
+<div class="status-card status-warn mt-2" style="padding:0.4rem 0.75rem;">
 
-SSE `?access_token=...` in URL is visible in logs, browser history, and referrer headers.
+`?access_token=` is the **full user JWT** — replayable on any endpoint. **CWE-598**, captured live next slide.
 
 </div>
 
@@ -694,6 +694,36 @@ SSE `?access_token=...` in URL is visible in logs, browser history, and referrer
 | No clipboard UI in frontend | High | Known |
 | Hardcoded OS icons (TODO in code) | Low | Known |
 | SSE reconnection instability (3+ fix commits) | Medium | Known |
+
+</div>
+</div>
+
+---
+
+# Live Evidence: SSE Token in the URL
+
+<div class="grid grid-cols-2 gap-6">
+<div>
+
+<img :src="$base + 'evidence/browser/SSE_TOKEN_LEAK.png'" class="rounded-lg shadow-md w-full" />
+
+<div class="text-xs opacity-50 mt-1">Live on demo.osvdi — DevTools → Network → <code>/system/events</code> Request URL. JWT redacted.</div>
+
+</div>
+<div class="text-sm">
+
+### Why it's High, not cosmetic
+
+- **Full Keycloak user JWT** in the query string — same `Bearer` as every API call, not a scoped ticket
+- Backend takes `?access_token=` on **any** endpoint — `AuthExtensions.cs:73`
+- Replayable from a bare terminal, no cookie → read / list / delete the user's desktops
+- Leaks via proxy logs, screenshares, extensions — **CWE-598**
+
+<div class="status-card status-warn mt-1" style="padding:0.35rem 0.7rem;">
+
+HTTPS + a **5-min token lifetime** bound it → Medium-High. Fix: cookie or short opaque ticket — EventSource can't send headers.
+
+</div>
 
 </div>
 </div>
@@ -1681,7 +1711,7 @@ DETAILS ON EACH NEW FINDING:
 - No WebSocket reconnection: spiceconn.js:88 — on disconnect, connection is simply dropped. No retry logic. One network blip = session lost
 - File transfer: spice-html5 main.js DOES implement chunked upload (file_xfer_read sends VD_AGENT_FILE_XFER_DATA); filexfer.js is only the drag/drop + progress UI. It is unverified end-to-end on OSVDI and blocked by the same missing org.spice-space.webdav.0 chardev as the native client. NOT a fake/stub.
 - Modifier key desync: inputs.js:32 — when browser tab loses focus while Ctrl/Alt/Shift is held, key-up event is missed. Guest VM thinks modifier is still pressed
-- SSE token in URL: osvdi-fe passes access_token as query parameter to EventSource. Visible in browser history, server logs, referrer headers. EventSource API doesn't support headers — this is a known API limitation, but should use cookie-based auth instead
+- SSE token in URL: osvdi-fe passes the access_token as a query parameter to EventSource (HomePage.js:173 main / :179 dev). It is the FULL Keycloak user JWT — the same Bearer used on every API call, not a scoped SSE ticket — and the backend (AuthExtensions.cs:73, OnMessageReceived, no path restriction) accepts ?access_token= on ANY endpoint, so a captured token can read /user and list/create/delete /desktops as that user. Primary leak vector is server/proxy access logs (full request line) plus screenshare/extensions — NOT browser history or referrer (EventSource is a subresource, hits neither). Bounded by HTTPS + ~5-min token lifetime → Medium-High. Fix: cookie-based auth or a short opaque ticket; EventSource can't send custom headers. Live evidence captured on demo.osvdi (screenshot in this gateway section). CWE-598
 - SPICE binds 0.0.0.0: backend starts SPICE listener on all interfaces instead of localhost. Any network-adjacent host can connect
 - VM template missing chardev: org.spice-space.webdav.0 not configured — file transfer code is complete in server + guest agent but the VM template doesn't enable it. One-line fix
 - Codec mismatch: protocol defines 14, server encodes 4 (reds.cpp:3581), HTML5 decodes 3 reliably. The pipeline narrows at each stage
