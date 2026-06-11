@@ -346,6 +346,18 @@ VERIFIED BY CODE REVIEW (re-checked against current branches 2026-06-10):
 - HTML5: only VP8 (MediaSource) + MJPEG (Canvas) + H.264 (WebCodecs at display.js:1209-1212). VP9/H.265/AV1 NOT handled
 - H.264 HTML5: codedWidth/Height in VideoDecoder.configure() are HINTS; real frame size comes from the SPS, so non-1080p still decodes. The visible gray-area artifact is canvas pinned to server surface height + drawing onto the wrong canvas (display.js:528-530, 1199-1202) — NOT a resolution-decode failure
 - HOW VERIFIED: `SPICE_DEBUG=1 remote-viewer "spice+tls://<session>.demo.osvdi…:443"` → `display-2:0 got remote channel caps: 0xD7852`. Passwordless SPICE-over-TLS on 443, routed per session by TLS SNI subdomain. The browser "open in native app" emits a `spice+tls://` URI macOS won't auto-launch (no URL-scheme handler) — run remote-viewer manually with the URI
+
+=== LIVE DEMO (optional — the "not AI-invented" moment) ===
+1. In the browser: start a desktop → "open in native app" → copy the spice+tls:// URI (per-session UUID subdomain).
+2. Run:  SPICE_DEBUG=1 remote-viewer "spice+tls://<UUID>.demo.osvdi.uni-freiburg.de:443" 2>&1 | grep -i 'got remote channel caps'
+3. Output:  display-2:0: got remote channel caps: 0:0xD7852
+TALKING POINTS:
+- Connects passwordless over TLS:443 — auth is just the per-session SNI subdomain (no SPICE ticket needed).
+- 0xD7852 decodes to H.264 + VP9 + H.265 + AV1 + VP9-4:4:4 + H.265-4:4:4 = 6 codecs = the ENHANCED branch, not the 4-codec master. MJPEG/VP8 not even advertised.
+- spice-html5 decodes only H.264 of those → the browser is pinned to the one buggy codec (ties to the canvas-sizing bug).
+- The browser's "open in native app" link does NOT auto-launch on macOS (no URL-scheme handler) — you must run remote-viewer by hand. That's a real UX gap, not a SPICE failure.
+- This Mac's brew remote-viewer had no AV1 decoder, so it falls back to H.264 regardless — the server offers AV1, the client can't take it.
+- FALLBACK if you can't connect live: just say "I confirmed it on the wire — caps 0xD7852, the H.265/AV1 branch" and move on.
 -->
 
 ---
