@@ -1026,6 +1026,19 @@ layout: section
 
 </div>
 
+<!--
+FIX PER BUG (root cause → fix). Most are inputs to Rafael's rewrite, NOT patches on 14-yr-old code:
+- H.264 gray area (display.js:528-530, 1199-1202): canvas pinned to server surface height + frame drawn onto the wrong canvas. FIX: size canvas to the browser viewport, blit onto the active display canvas. → rewrite requirement.
+- VideoDecoder leak (display.js:1196): decoder created per stream, never closed. FIX: decoder.close() on stream end / before re-create. → rewrite requirement (one-liner if patched).
+- No WS reconnection (spiceconn.js:88): socket close just drops the session. FIX: reconnect with backoff + re-init channels. → rewrite requirement.
+- File transfer (main.js): client chunked-upload code is COMPLETE; blocked only by the missing org.spice-space.webdav.0 chardev in the VM template. FIX: add the chardev (1 line, infra) — do this NOW, not a rewrite item.
+- Modifier desync (inputs.js:32): key-up missed when tab loses focus while modifier held. FIX: on blur, synthesize key-up for all held modifiers. → rewrite requirement.
+- Dead keys / IME (code_to_scancode.js): raw keycode→scancode map, no composition. FIX: handle compositionend/beforeinput for accented & non-Latin input. → rewrite requirement.
+- Firefox audio (playback.js:105): timestamp fudge to work around Firefox; CONFIRMED no audio in Firefox 2026-06-11. FIX: schedule on the stream PTS via AudioContext properly. → rewrite requirement.
+- Image cache (display.js:729): grows unbounded. FIX: LRU eviction / size cap. → rewrite requirement.
+STRATEGY: file-transfer chardev + SSE-token→cookie are infra/gateway fixes worth doing NOW; the other 6 feed the rewrite by design rather than being patched in.
+-->
+
 ---
 
 # spice-html5: Browser Limitations
