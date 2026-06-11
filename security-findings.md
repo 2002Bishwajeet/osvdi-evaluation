@@ -9,31 +9,33 @@
 
 ## Executive Summary
 
-**32 vulnerabilities** found across the three core OSVDI repositories: 16 HIGH, 16 MEDIUM.
+**32 candidate issues** (static analysis, confidence ≥8/10, **not penetration-tested**) across the three core OSVDI repositories: 15 HIGH, 16 MEDIUM, 1 LOW.
 
 | Component | HIGH | MEDIUM | Total |
 |-----------|:----:|:------:|:-----:|
-| osvdi (backend) | 6 | 6 | 12 |
+| osvdi (backend) | 5 | 6 | 12* |
 | osvdi-fe (frontend) | 5 | 5 | 10 |
 | spice-html5 (web client) | 5 | 5 | 10 |
 
+<sub>*backend total includes B1, reclassified HIGH→LOW after runtime verification (see below).</sub>
+
 ### Most Critical Chains
 
-1. **Backend auth bypass (one-shot):** Calling `/system/config` permanently sets the singleton API key to `"******"`. After that, anyone sending `Authorization: Bearer ******` gets InternalService access.
+1. **Frontend account takeover:** `dangerouslySetInnerHTML` on API data (XSS — now in 3 files / 4 sinks incl. `ModalCreateDesktops.js`) + Keycloak tokens in localStorage = steal any user's refresh token.
 
-2. **Frontend account takeover:** `dangerouslySetInnerHTML` on API data (XSS) + Keycloak tokens in localStorage = steal any user's refresh token.
+2. **spice-html5 credential theft:** XSS via `innerHTML` in `display_hostname()` + password stored on `window.spice_connection.password` = steal SPICE VM access.
 
-3. **spice-html5 credential theft:** XSS via `innerHTML` in `display_hostname()` + password stored on `window.spice_connection.password` = steal SPICE VM access.
+> An earlier draft listed a backend "auth bypass via singleton mutation" as the top chain. On verification it does **NOT** hold — `ApiKeyAuthHandler` reads the key fresh from `IConfiguration.Get<Auth>()` (`ApiKeyAuthHandler.cs:21`), not the mutated `IOptions` singleton, so `Bearer ******` is rejected. Reclassified as a Low state-corruption code smell (B1).
 
 ---
 
 ## Part 1: osvdi Backend (C# ASP.NET Core 10)
 
-### B1: Auth Bypass via Singleton Mutation — `System.cs:92-98`
+### B1: State Corruption via Live Config Mutation — `System.cs:92-98`
 
-* **Severity:** HIGH | **Confidence:** 10/10
-* The `GetConfig` admin endpoint mutates the singleton `IOptions<OSVDIConfig>` directly: `config.Auth.ApiKey = "******"`. Since it's a singleton, this permanently changes the API key in memory. After one admin call, `ApiKeyAuthHandler` compares against `"******"` — meaning anyone sending `Authorization: Bearer ******` gets InternalService access.
-* **Fix:** Never mutate the singleton. Create a DTO copy for the response.
+* **Severity:** LOW | **Confidence:** 10/10
+* The `GetConfig` admin endpoint mutates the shared `IOptions<OSVDIConfig>` singleton to mask the key for its response: `config.Auth.ApiKey = "******"`, corrupting the in-memory config for any other reader of `IOptions`. It is **NOT an auth bypass**: `ApiKeyAuthHandler` binds the key fresh from `IConfiguration.Get<Auth>()` (`ApiKeyAuthHandler.cs:21`), independent of the mutated singleton, so the real configured key is still compared and `Bearer ******` is rejected. (Verified on `origin/dev`, 2026-06.)
+* **Fix:** Never mutate the singleton. Build a DTO copy for the response.
 
 ### B2: Schedule-Task Accessible to All Users — `System.cs:30,100-111`
 
