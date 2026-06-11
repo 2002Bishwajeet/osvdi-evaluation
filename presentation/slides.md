@@ -307,15 +307,15 @@ graph LR
 </div>
 <div class="funnel-arrow">→</div>
 <div class="funnel-step">
-  <div class="funnel-number text-amber-500">4</div>
+  <div class="funnel-number text-amber-500">6</div>
   <div class="funnel-label">Server</div>
-  <div class="funnel-sublabel">Encodes today</div>
+  <div class="funnel-sublabel">demo · live</div>
 </div>
 <div class="funnel-arrow">→</div>
 <div class="funnel-step">
-  <div class="funnel-number text-red-500">3</div>
+  <div class="funnel-number text-red-500">1</div>
   <div class="funnel-label">HTML5</div>
-  <div class="funnel-sublabel">Reliable</div>
+  <div class="funnel-sublabel">H.264 on demo</div>
 </div>
 </div>
 
@@ -327,7 +327,13 @@ graph LR
 | **VP8** | Yes | Yes | Yes | MediaSource API |
 | **H.264** | Yes (HW) | Yes (HW) | Buggy | Canvas-sizing bug (not 1080p-limited) |
 | **VP9** | Yes | Yes | **No** | — |
-| **H.265 / AV1** | Exp.† | Yes | **No** | †SW encoder landed on a feature branch |
+| **H.265 / AV1** | **Yes◆** | Yes | **No** | ◆Live on demo — caps `0xD7852` |
+
+<div style="font-size:0.7rem; margin-top:2px;">
+
+◆ **Live on demo.osvdi (2026‑06‑11, native SPICE handshake):** server offers H.264 · VP9 · H.265 · AV1 · VP9/H.265 4:4:4 — the **enhanced branch, not** the 4‑codec master. Of these, spice‑html5 decodes only **H.264** → browser is pinned to the one buggy codec.
+
+</div>
 
 </div>
 
@@ -335,11 +341,11 @@ graph LR
 VERIFIED BY CODE REVIEW (re-checked against current branches 2026-06-10):
 - Protocol: 14 types defined in spice-protocol/spice/enums.h (lines 148-161)
 - Server (stable/master): encodes 4 — MJPEG=avenc_mjpeg, VP8=vp8enc, VP9=vp9enc, H.264=x264enc (gstreamer-encoder.c:911-928, reds.cpp:3581-3594)
-- Server (feature branch gstreamer_va_improvements, May 2026): codec table grew to 10 — adds H.265=x265enc, AV1=av1enc + 4:4:4 variants (reds.cpp:3582-3606). SOFTWARE encoders, commit labelled "HACK", NOT yet on master. >>> CONFIRM which branch demo.osvdi runs to state the real number <<<
+- Server (DEMO — CONFIRMED LIVE 2026-06-11): a native remote-viewer SPICE handshake to demo.osvdi returned display-channel caps 0xD7852 = CODEC_H264 + CODEC_VP9 + CODEC_H265 + CODEC_AV1 + CODEC_VP9_444 + CODEC_H265_444 (+ PREF_VIDEO_CODEC_TYPE). So demo runs the ENHANCED codec branch (gstreamer_va_improvements: H.265=x265enc, AV1=av1enc + 4:4:4, reds.cpp:3582-3606), NOT the 4-codec master. MJPEG/VP8 NOT advertised. Bits decoded against spice-protocol/spice/protocol.h:138-162. Caveat: brew remote-viewer shipped no AV1 decoder, so this Mac (and any browser) still falls back to H.264
 - Native (spice-gtk): all 14 types have GStreamer decoders registered (channel-display-priv.h:192-259), including H.265 and AV1
 - HTML5: only VP8 (MediaSource) + MJPEG (Canvas) + H.264 (WebCodecs at display.js:1209-1212). VP9/H.265/AV1 NOT handled
 - H.264 HTML5: codedWidth/Height in VideoDecoder.configure() are HINTS; real frame size comes from the SPS, so non-1080p still decodes. The visible gray-area artifact is canvas pinned to server surface height + drawing onto the wrong canvas (display.js:528-530, 1199-1202) — NOT a resolution-decode failure
-- HOW TO VERIFY: use virt-viewer's runtime codec selector (virt-viewer-app.c:3162) to switch codecs live and observe which codecs the server actually offers
+- HOW VERIFIED: `SPICE_DEBUG=1 remote-viewer "spice+tls://<session>.demo.osvdi…:443"` → `display-2:0 got remote channel caps: 0xD7852`. Passwordless SPICE-over-TLS on 443, routed per session by TLS SNI subdomain. The browser "open in native app" emits a `spice+tls://` URI macOS won't auto-launch (no URL-scheme handler) — run remote-viewer manually with the URI
 -->
 
 ---
@@ -573,7 +579,7 @@ EVALUATION DETAILS:
 |------------|-------------|------------|
 | Codec / channel counts, bug root causes | **Source code review** — every claim cites `file:line` | High |
 | Gateway, browser & mobile behavior | **Hands-on testing** on `demo.osvdi` + screenshots | High |
-| File transfer, audio, USB end-to-end | Code reading only — **not verified end-to-end** | Medium |
+| File transfer & USB end-to-end | Code reading only — **not verified end-to-end** | Medium |
 | Latency figures (DMA-BUF, WebView) | **OSVDI-reported / literature** — not independently measured | Reported |
 
 </div>
@@ -1003,7 +1009,7 @@ layout: section
 | File transfer needs WebDAV chardev (client code complete) | Medium | `main.js` |
 | Modifier key state **desyncs** on focus loss | Medium | `inputs.js:32` |
 | **No dead key / IME** for non-Latin input | Medium | `code_to_scancode.js` |
-| Audio timestamp **hack** for Firefox | Medium | `playback.js:105` |
+| Audio timestamp **hack** for Firefox ✓ | Medium | `playback.js:105` |
 | Image cache **unbounded** (no eviction) | Medium | `display.js:729` |
 
 </div>
@@ -1692,7 +1698,7 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
 | SSE token exposed in URL | High |
 | SPICE binds `0.0.0.0` | Medium |
 | VM template missing chardev | High |
-| Codec mismatch (14→4→3) | High |
+| Codec mismatch (14→6→1) | High |
 | Mobile UX (crop, cursor, KB) | Critical |
 
 </div>
@@ -1714,9 +1720,10 @@ DETAILS ON EACH NEW FINDING:
 - SSE token in URL: osvdi-fe passes the access_token as a query parameter to EventSource (HomePage.js:173 main / :179 dev). It is the FULL Keycloak user JWT — the same Bearer used on every API call, not a scoped SSE ticket — and the backend (AuthExtensions.cs:73, OnMessageReceived, no path restriction) accepts ?access_token= on ANY endpoint, so a captured token can read /user and list/create/delete /desktops as that user. Primary leak vector is server/proxy access logs (full request line) plus screenshare/extensions — NOT browser history or referrer (EventSource is a subresource, hits neither). Bounded by HTTPS + ~5-min token lifetime → Medium-High. Fix: cookie-based auth or a short opaque ticket; EventSource can't send custom headers. Live evidence captured on demo.osvdi (screenshot in this gateway section). CWE-598
 - SPICE binds 0.0.0.0: backend starts SPICE listener on all interfaces instead of localhost. Any network-adjacent host can connect
 - VM template missing chardev: org.spice-space.webdav.0 not configured — file transfer code is complete in server + guest agent but the VM template doesn't enable it. One-line fix
-- Codec mismatch: protocol defines 14, server encodes 4 (reds.cpp:3581), HTML5 decodes 3 reliably. The pipeline narrows at each stage
+- Codec mismatch: protocol defines 14; demo.osvdi advertises 6 LIVE (H.264/VP9/H.265/AV1 + VP9/H.265 4:4:4 — display caps 0xD7852, the enhanced branch, confirmed via native remote-viewer handshake 2026-06-11); spice-html5 decodes only H.264 of those, so the browser is pinned to the one buggy codec. Pipeline narrows 14→6→1 on demo (was 14→4→3 on master)
 - Mobile UX: Android screen cropped + no cursor, iOS taskbar cropped + resume reloads to a NEW session (auto-reload fix May 2026 — no true reconnect). No modifier keys on either. Screenshots on slide 35
 - The 3 further spice-html5 Medium bugs (dead keys/IME, Firefox audio timestamp hack, unbounded image cache) are detailed on the "spice-html5: Critical Bugs Found" slide — total 8 there + 1 gateway + 3 server + 1 mobile = 13
+- Firefox audio (✓ hands-on confirmed 2026-06-11): audio does NOT play in Firefox on demo.osvdi — corroborates the timestamp-hack finding (playback.js:105). Works in Chromium-family browsers
 -->
 
 ---
