@@ -746,6 +746,21 @@ HTTPS + a **5-min token lifetime** bound it → Medium-High. Fix: cookie or shor
 </div>
 </div>
 
+<!--
+LIVE DEMO: token replay = full account access (turns "exposed" into "owned"):
+1. Get a fresh token: DevTools → Network → the /system/events request → copy the access_token= value.
+2. From a plain terminal — no browser, no cookie, no session:
+     curl -i -H 'Authorization: Bearer <TOKEN>' https://demo.osvdi.uni-freiburg.de/api/v1/user
+     curl    -H 'Authorization: Bearer <TOKEN>' https://demo.osvdi.uni-freiburg.de/api/v1/desktops
+3. Result: your own profile (name, email) + desktop list return 200 OK — proof the URL token is a portable, replayable credential.
+TALKING POINTS:
+- The same token also works as ?access_token= on ANY endpoint (backend AuthExtensions.cs:73, OnMessageReceived, no path restriction) — not just SSE.
+- It is the FULL Keycloak user JWT, so within its ~5-min life anyone who reads one log line / screenshare can read your profile and create/delete your desktops as you. No MFA re-prompt.
+- Severity bounded by HTTPS + 5-min lifetime → Medium-High. Fix: cookie-based auth or a short opaque SSE ticket (EventSource can't send custom headers).
+- Token expires in ~5 min — grab a fresh one right before demoing, and redact it in any screenshot.
+- FALLBACK if offline: the committed screenshot already shows the token in the Request URL; say "I replayed it from a terminal with no session and got my account back."
+-->
+
 ---
 
 # Access Gateway: RDP Baseline Comparison
