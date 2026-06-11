@@ -564,6 +564,42 @@ EVALUATION DETAILS:
 -->
 
 ---
+
+# How Confident Are These Findings?
+
+<div class="text-xs">
+
+| Claim type | Verified by | Confidence |
+|------------|-------------|------------|
+| Codec / channel counts, bug root causes | **Source code review** — every claim cites `file:line` | High |
+| Gateway, browser & mobile behavior | **Hands-on testing** on `demo.osvdi` + screenshots | High |
+| File transfer, audio, USB end-to-end | Code reading only — **not verified end-to-end** | Medium |
+| Latency figures (DMA-BUF, WebView) | **OSVDI-reported / literature** — not independently measured | Reported |
+
+</div>
+
+<div class="status-card status-success mt-2" style="padding:0.4rem 0.75rem;">
+
+**Re-verified June 2026:** every claim re-audited against freshly fetched source — corrections applied where code had moved on (iOS screen-lock fix, H.264 severity).
+
+</div>
+
+<div v-click class="status-card status-info mt-2" style="padding:0.4rem 0.75rem;">
+
+**Not** a penetration test, benchmark, or user study — those are the follow-up work in the roadmap.
+
+</div>
+
+<!--
+CONFIDENCE / METHODOLOGY DETAILS:
+- Code-review claims: channel handler registration, codec enums/encoder pipelines, security patterns — all carry file:line citations in presenter notes; re-verified against repos fetched 2026-06-11
+- Hands-on: demo.osvdi.uni-freiburg.de via macOS browsers, WSL2 native client, Android + iOS devices; screenshots in evidence/ (browser gray-area, Android crop/no-cursor, iOS taskbar/loading)
+- Marked Medium: file transfer (client + agent code complete, blocked by missing webdav chardev — upload not exercised end-to-end), audio/USB/smartcard on native (handlers exist, not tested on OSVDI)
+- Latency numbers (DMA-BUF 6-50ms / 3-10x, WebView +30-80ms) come from OSVDI's own reporting and general literature; measuring them is proposed follow-up work (MeasurementFramework exists but has no call sites yet)
+- Security: 32 candidate issues from static analysis at >=8/10 confidence threshold; none pen-tested at runtime. One earlier finding (auth bypass) was refuted during re-verification and demoted — the process catches its own errors
+-->
+
+---
 layout: section
 ---
 
@@ -1585,7 +1621,7 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
 
 <div class="flex items-center gap-3 mb-2">
 <div class="text-center py-1 px-3 rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800">
-  <div class="hero-stat" style="font-size:1.8rem; background:linear-gradient(135deg,#dc2626,#f87171); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">10</div>
+  <div class="hero-stat" style="font-size:1.8rem; background:linear-gradient(135deg,#dc2626,#f87171); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">13</div>
   <div class="hero-stat-label" style="font-size:0.55rem;">New findings</div>
 </div>
 <div class="text-center py-1 px-3 rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800">
@@ -1593,16 +1629,16 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
   <div class="hero-stat-label" style="font-size:0.55rem;">Critical</div>
 </div>
 <div class="text-center py-1 px-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
-  <div class="hero-stat" style="font-size:1.8rem;">5</div>
+  <div class="hero-stat" style="font-size:1.8rem;">8</div>
   <div class="hero-stat-label" style="font-size:0.55rem;">In spice-html5</div>
 </div>
 </div>
 
 <div class="stacked-bar mb-1">
-  <div class="stacked-segment" style="width:50%; background:#b45309;">spice-html5 (5)</div>
-  <div class="stacked-segment" style="width:20%; background:#0369a1;">Gateway (2)</div>
-  <div class="stacked-segment" style="width:10%; background:#7c3aed;">Server (1)</div>
-  <div class="stacked-segment" style="width:20%; background:#be185d;">Mobile (2)</div>
+  <div class="stacked-segment" style="width:61%; background:#b45309;">spice-html5 (8)</div>
+  <div class="stacked-segment" style="width:8%; background:#0369a1;">Gateway (1)</div>
+  <div class="stacked-segment" style="width:23%; background:#7c3aed;">Server (3)</div>
+  <div class="stacked-segment" style="width:8%; background:#be185d;">Mobile (1)</div>
 </div>
 
 <div class="grid grid-cols-2 gap-3 text-xs">
@@ -1615,6 +1651,8 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
 | No WebSocket reconnection | High |
 | File xfer needs WebDAV chardev (code OK) | Medium |
 | Modifier key desync | Medium |
+
+<div class="opacity-60" style="font-size:0.65rem; margin-top:2px;">+3 Medium: dead keys/IME · Firefox audio hack · unbounded image cache</div>
 
 </div>
 <div>
@@ -1632,7 +1670,7 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
 
 <div v-click class="status-card status-critical mt-1" style="padding:0.3rem 0.75rem;">
 
-**10 new findings** across the stack — most in spice-html5, shared by browser and mobile.
+**13 new findings** across the stack — most in spice-html5, shared by browser and mobile.
 
 </div>
 
@@ -1647,7 +1685,8 @@ DETAILS ON EACH NEW FINDING:
 - SPICE binds 0.0.0.0: backend starts SPICE listener on all interfaces instead of localhost. Any network-adjacent host can connect
 - VM template missing chardev: org.spice-space.webdav.0 not configured — file transfer code is complete in server + guest agent but the VM template doesn't enable it. One-line fix
 - Codec mismatch: protocol defines 14, server encodes 4 (reds.cpp:3581), HTML5 decodes 3 reliably. The pipeline narrows at each stage
-- Mobile UX: Android screen cropped + no cursor, iOS taskbar cropped + session dies on screen lock. No modifier keys on either. Screenshots on slide 35
+- Mobile UX: Android screen cropped + no cursor, iOS taskbar cropped + resume reloads to a NEW session (auto-reload fix May 2026 — no true reconnect). No modifier keys on either. Screenshots on slide 35
+- The 3 further spice-html5 Medium bugs (dead keys/IME, Firefox audio timestamp hack, unbounded image cache) are detailed on the "spice-html5: Critical Bugs Found" slide — total 8 there + 1 gateway + 3 server + 1 mobile = 13
 -->
 
 ---
