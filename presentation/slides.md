@@ -1906,6 +1906,47 @@ MEASURED 2026-06-12 (own testing, macOS — defensible because the browser is th
 
 ---
 
+# macOS Native Client: Measured
+
+<div class="grid grid-cols-2 gap-6">
+<div>
+
+<img :src="$base + 'evidence/browser/native-client-mac.png'" class="rounded-lg shadow-md w-full" />
+
+<div class="text-xs opacity-50 mt-1">remote-viewer (spice-gtk 0.42) on demo.osvdi via <code>spice+tls://</code> — same desktop & 11 ms network as the browser.</div>
+
+</div>
+<div class="text-sm">
+
+### Same server, two clients
+
+| Client | Input lag | Clipboard |
+|--------|:---------:|:---------:|
+| Browser (spice-html5) | **50–150 ms** | n/a |
+| Native (brew virt-viewer) | **~1 s** | **broken** |
+
+- Network RTT: **11 ms** → not the network
+- Browser is the control: fine in browser, laggy in native → the **macOS client** is the outlier, not OSVDI
+- Cause: brew build (GTK3/GTK4 clash) + GTK‑quartz clipboard
+
+<div class="status-card status-warn mt-1" style="padding:0.35rem 0.7rem;">
+
+**macOS has no usable native client.** Linux AppImage is OSVDI's real target — untested clean, so we don't generalize.
+
+</div>
+
+</div>
+</div>
+
+<!--
+This slide is the evidence for the latency claim on the previous slide.
+- Screenshot = remote-viewer connected to demo.osvdi (XFCE desktop, session UUID in the title bar) — documents the native client was actually run on macOS.
+- The table is the headline: at 11 ms RTT, browser 50-150 ms (usable) vs native ~1 s (unusable) + clipboard dead. Browser is the control (same server/network), so the macOS native client is the outlier.
+- If asked "did you test Linux native?": no — WSL was too buggy, no clean box before the talk. So we scope the claim to macOS only and don't generalize to "native is bad."
+-->
+
+---
+
 # Roadmap
 
 <div class="text-xs">
