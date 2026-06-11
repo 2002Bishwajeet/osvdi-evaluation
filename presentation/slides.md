@@ -1886,6 +1886,24 @@ Feed bugs as **rewrite requirements** (reconnection, modifiers, dead keys, non-1
 </div>
 </div>
 
+<div class="status-card status-warn mt-2" style="padding:0.4rem 0.75rem;">
+
+**Measured (macOS, 11 ms RTT):** browser **50–150 ms** (usable) vs native Homebrew `virt-viewer` **~1 s + no clipboard**. On macOS the *native* client is the bottleneck — the browser wins. The latency edge needs a working client; macOS lacks one (Linux AppImage is OSVDI's real native target).
+
+</div>
+
+<!--
+MEASURED 2026-06-12 (own testing, macOS — defensible because the browser is the control: same server, same network, only the client differs):
+- TCP RTT to demo.osvdi = 11 ms (network ruled out; ICMP is firewalled).
+- Browser (spice-html5): input echo 50-150 ms = usable.
+- Native Homebrew remote-viewer (spice-gtk 0.42): ~500-1000 ms input lag, clipboard non-functional, gstreamer audio-sink CRITICALs.
+- ATTRIBUTION: browser fine + native laggy on the same server => the macOS native client is the outlier, NOT OSVDI/SPICE/server. Root cause is the brew build (GTK3/GTK4 class clash, software-render path), not the software-encode codec branch.
+- CLIPBOARD: log showed ZERO clipboard-grab events when copying on the Mac (⌘C never reached spice-gtk) — known GTK-quartz limitation; the guest agent was healthy (advertised max-clipboard cap). macOS-client issue, not server.
+- NATIVE-APP HANDOFF: browser "open in native app" emits spice+tls:// which macOS won't auto-launch ("scheme has no registered handler") — must run remote-viewer manually.
+- NOT TESTED: a clean Linux native client (WSL too buggy, no time before the talk). So we do NOT claim native is bad in general — only that macOS has no usable native client today; Linux/AppImage is presumably fine.
+- TAKEAWAY for OSVDI: macOS users are effectively browser-only; if macOS native matters, ship a working bundle (the Priority-2 "bundle virt-viewer" item).
+-->
+
 ---
 
 # Roadmap
