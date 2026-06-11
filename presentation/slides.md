@@ -1566,14 +1566,14 @@ graph LR
     subgraph Protocol["SPICE Protocol (14 types)"]
         P[MJPEG, VP8, H.264, VP9<br/>H.265, AV1<br/>+ 4:4:4 + Upsampled]
     end
-    subgraph Server["Server Encodes (4)"]
-        S[MJPEG, VP8, H.264, VP9]
+    subgraph Server["Server Encodes (6 on demo)"]
+        S[H.264, VP9, H.265, AV1<br/>+ VP9/H.265 4:4:4]
     end
     subgraph Native["Native Decodes (14)"]
         N[All standard + 4:4:4 + upsampled]
     end
-    subgraph HTML5["HTML5 Decodes (3 reliably)"]
-        H[MJPEG, VP8, H.264*]
+    subgraph HTML5["HTML5 Decodes (1 on demo)"]
+        H[H.264* only]
     end
     P --> S
     S --> Native
@@ -1585,7 +1585,7 @@ graph LR
 
 <div v-click class="status-card status-warn mt-2">
 
-**The bottleneck is the server** (4 codecs on stable; H.265/AV1/4:4:4 software encoders have started landing on a feature branch), not the protocol. The HTML5 client narrows further to 3. The native client is the only path to full codec support today.
+**The bottleneck is the browser.** demo.osvdi advertises 6 modern codecs live (H.264/VP9/H.265/AV1 + 4:4:4 — caps `0xD7852`, the enhanced branch) and the native client decodes all 14 — but spice-html5 reliably decodes only H.264, pinning the browser to one codec: **14→6→1**.
 
 </div>
 
@@ -1664,7 +1664,7 @@ Infrastructure: OTel/Grafana/storage backends confirmed from docker-compose.yaml
 <div class="status-card status-warn" style="padding:0.5rem 0.8rem;">
 <div class="font-bold text-sm mb-1">Significant (Blocks Real Work)</div>
 <div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>spice-html5:</b> Modifier desync, no dead keys</div>
-<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Server:</b> Only 4/14 codecs, no H.265/AV1</div>
+<div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Codecs:</b> browser decodes only H.264 of 6 server codecs (14→6→1)</div>
 <div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Native:</b> File transfer not wired (chardev)</div>
 <div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Native:</b> Linux-only; multi-monitor blocked server-side</div>
 <div class="traffic-item"><div class="traffic-dot dot-amber"></div><b>Gateway:</b> No session timeout warning</div>
@@ -2128,7 +2128,7 @@ layout: center
 class: text-center
 ---
 
-# Live Demo
+# Recap: Four Client Surfaces
 
 <div class="grid grid-cols-4 gap-3 mt-6">
 <div class="p-3 rounded-xl bg-cyan-50 dark:bg-cyan-950 border border-cyan-200 dark:border-cyan-800">
@@ -2155,9 +2155,9 @@ class: text-center
 
 <div class="mt-4 text-sm opacity-60">
 
-Demonstrate: gateway login → VM launch → native session → browser session → mobile session
+One stack, four ways in — each evaluated hands-on against the same demo server.
 
-Show: keyboard mapping, channel differences, bugs in action
+Live evidence is embedded in the slides above: SSE token, codec caps `0xD7852`, native client, mobile.
 
 </div>
 
