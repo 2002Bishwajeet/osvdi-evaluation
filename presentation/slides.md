@@ -307,15 +307,15 @@ graph LR
 </div>
 <div class="funnel-arrow">→</div>
 <div class="funnel-step">
-  <div class="funnel-number text-amber-500">4</div>
+  <div class="funnel-number text-amber-500">6</div>
   <div class="funnel-label">Server</div>
-  <div class="funnel-sublabel">Encodes today</div>
+  <div class="funnel-sublabel">demo · live</div>
 </div>
 <div class="funnel-arrow">→</div>
 <div class="funnel-step">
-  <div class="funnel-number text-red-500">3</div>
+  <div class="funnel-number text-red-500">1</div>
   <div class="funnel-label">HTML5</div>
-  <div class="funnel-sublabel">Reliable</div>
+  <div class="funnel-sublabel">H.264 on demo</div>
 </div>
 </div>
 
@@ -327,7 +327,13 @@ graph LR
 | **VP8** | Yes | Yes | Yes | MediaSource API |
 | **H.264** | Yes (HW) | Yes (HW) | Buggy | Canvas-sizing bug (not 1080p-limited) |
 | **VP9** | Yes | Yes | **No** | — |
-| **H.265 / AV1** | Exp.† | Yes | **No** | †SW encoder landed on a feature branch |
+| **H.265 / AV1** | **Yes◆** | Yes | **No** | ◆Live on demo — caps `0xD7852` |
+
+<div style="font-size:0.7rem; margin-top:2px;">
+
+◆ **Live on demo.osvdi (2026‑06‑11, native SPICE handshake):** server offers H.264 · VP9 · H.265 · AV1 · VP9/H.265 4:4:4 — the **enhanced branch, not** the 4‑codec master. Of these, spice‑html5 decodes only **H.264** → browser is pinned to the one buggy codec.
+
+</div>
 
 </div>
 
@@ -335,11 +341,23 @@ graph LR
 VERIFIED BY CODE REVIEW (re-checked against current branches 2026-06-10):
 - Protocol: 14 types defined in spice-protocol/spice/enums.h (lines 148-161)
 - Server (stable/master): encodes 4 — MJPEG=avenc_mjpeg, VP8=vp8enc, VP9=vp9enc, H.264=x264enc (gstreamer-encoder.c:911-928, reds.cpp:3581-3594)
-- Server (feature branch gstreamer_va_improvements, May 2026): codec table grew to 10 — adds H.265=x265enc, AV1=av1enc + 4:4:4 variants (reds.cpp:3582-3606). SOFTWARE encoders, commit labelled "HACK", NOT yet on master. >>> CONFIRM which branch demo.osvdi runs to state the real number <<<
+- Server (DEMO — CONFIRMED LIVE 2026-06-11): a native remote-viewer SPICE handshake to demo.osvdi returned display-channel caps 0xD7852 = CODEC_H264 + CODEC_VP9 + CODEC_H265 + CODEC_AV1 + CODEC_VP9_444 + CODEC_H265_444 (+ PREF_VIDEO_CODEC_TYPE). So demo runs the ENHANCED codec branch (gstreamer_va_improvements: H.265=x265enc, AV1=av1enc + 4:4:4, reds.cpp:3582-3606), NOT the 4-codec master. MJPEG/VP8 NOT advertised. Bits decoded against spice-protocol/spice/protocol.h:138-162. Caveat: brew remote-viewer shipped no AV1 decoder, so this Mac (and any browser) still falls back to H.264
 - Native (spice-gtk): all 14 types have GStreamer decoders registered (channel-display-priv.h:192-259), including H.265 and AV1
 - HTML5: only VP8 (MediaSource) + MJPEG (Canvas) + H.264 (WebCodecs at display.js:1209-1212). VP9/H.265/AV1 NOT handled
 - H.264 HTML5: codedWidth/Height in VideoDecoder.configure() are HINTS; real frame size comes from the SPS, so non-1080p still decodes. The visible gray-area artifact is canvas pinned to server surface height + drawing onto the wrong canvas (display.js:528-530, 1199-1202) — NOT a resolution-decode failure
-- HOW TO VERIFY: use virt-viewer's runtime codec selector (virt-viewer-app.c:3162) to switch codecs live and observe which codecs the server actually offers
+- HOW VERIFIED: `SPICE_DEBUG=1 remote-viewer "spice+tls://<session>.demo.osvdi…:443"` → `display-2:0 got remote channel caps: 0xD7852`. Passwordless SPICE-over-TLS on 443, routed per session by TLS SNI subdomain. The browser "open in native app" emits a `spice+tls://` URI macOS won't auto-launch (no URL-scheme handler) — run remote-viewer manually with the URI
+
+=== LIVE DEMO (optional — the "not AI-invented" moment) ===
+1. In the browser: start a desktop → "open in native app" → copy the spice+tls:// URI (per-session UUID subdomain).
+2. Run:  SPICE_DEBUG=1 remote-viewer "spice+tls://<UUID>.demo.osvdi.uni-freiburg.de:443" 2>&1 | grep -i 'got remote channel caps'
+3. Output:  display-2:0: got remote channel caps: 0:0xD7852
+TALKING POINTS:
+- Connects passwordless over TLS:443 — auth is just the per-session SNI subdomain (no SPICE ticket needed).
+- 0xD7852 decodes to H.264 + VP9 + H.265 + AV1 + VP9-4:4:4 + H.265-4:4:4 = 6 codecs = the ENHANCED branch, not the 4-codec master. MJPEG/VP8 not even advertised.
+- spice-html5 decodes only H.264 of those → the browser is pinned to the one buggy codec (ties to the canvas-sizing bug).
+- The browser's "open in native app" link does NOT auto-launch on macOS (no URL-scheme handler) — you must run remote-viewer by hand. That's a real UX gap, not a SPICE failure.
+- This Mac's brew remote-viewer had no AV1 decoder, so it falls back to H.264 regardless — the server offers AV1, the client can't take it.
+- FALLBACK if you can't connect live: just say "I confirmed it on the wire — caps 0xD7852, the H.265/AV1 branch" and move on.
 -->
 
 ---
@@ -564,6 +582,42 @@ EVALUATION DETAILS:
 -->
 
 ---
+
+# How Confident Are These Findings?
+
+<div class="text-xs">
+
+| Claim type | Verified by | Confidence |
+|------------|-------------|------------|
+| Codec / channel counts, bug root causes | **Source code review** — every claim cites `file:line` | High |
+| Gateway, browser & mobile behavior | **Hands-on testing** on `demo.osvdi` + screenshots | High |
+| File transfer & USB end-to-end | Code reading only — **not verified end-to-end** | Medium |
+| Latency figures (DMA-BUF, WebView) | **OSVDI-reported / literature** — not independently measured | Reported |
+
+</div>
+
+<div class="status-card status-success mt-2" style="padding:0.4rem 0.75rem;">
+
+**Re-verified June 2026:** every claim re-audited against freshly fetched source — corrections applied where code had moved on (iOS screen-lock fix, H.264 severity).
+
+</div>
+
+<div v-click class="status-card status-info mt-2" style="padding:0.4rem 0.75rem;">
+
+**Not** a penetration test, benchmark, or user study — those are the follow-up work in the roadmap.
+
+</div>
+
+<!--
+CONFIDENCE / METHODOLOGY DETAILS:
+- Code-review claims: channel handler registration, codec enums/encoder pipelines, security patterns — all carry file:line citations in presenter notes; re-verified against repos fetched 2026-06-11
+- Hands-on: demo.osvdi.uni-freiburg.de via macOS browsers, WSL2 native client, Android + iOS devices; screenshots in evidence/ (browser gray-area, Android crop/no-cursor, iOS taskbar/loading)
+- Marked Medium: file transfer (client + agent code complete, blocked by missing webdav chardev — upload not exercised end-to-end), audio/USB/smartcard on native (handlers exist, not tested on OSVDI)
+- Latency numbers (DMA-BUF 6-50ms / 3-10x, WebView +30-80ms) come from OSVDI's own reporting and general literature; measuring them is proposed follow-up work (MeasurementFramework exists but has no call sites yet)
+- Security: 32 candidate issues from static analysis at >=8/10 confidence threshold; none pen-tested at runtime. One earlier finding (auth bypass) was refuted during re-verification and demoted — the process catches its own errors
+-->
+
+---
 layout: section
 ---
 
@@ -640,9 +694,9 @@ Gateway tested on demo.osvdi.uni-freiburg.de. Isabela's updated UI is on dev.osv
 | No retry/backoff on SSE reconnection | Medium | Known |
 | Backend binds SPICE on `0.0.0.0` | Medium | New |
 
-<div class="status-card status-warn mt-2" style="padding:0.5rem 0.75rem;">
+<div class="status-card status-warn mt-2" style="padding:0.4rem 0.75rem;">
 
-SSE `?access_token=...` in URL is visible in logs, browser history, and referrer headers.
+`?access_token=` is the **full user JWT** — replayable on any endpoint. **CWE-598**, captured live next slide.
 
 </div>
 
@@ -661,6 +715,51 @@ SSE `?access_token=...` in URL is visible in logs, browser history, and referrer
 
 </div>
 </div>
+
+---
+
+# Live Evidence: SSE Token in the URL
+
+<div class="grid grid-cols-2 gap-6">
+<div>
+
+<img :src="$base + 'evidence/browser/SSE_TOKEN_LEAK.png'" class="rounded-lg shadow-md w-full" />
+
+<div class="text-xs opacity-50 mt-1">Live on demo.osvdi — DevTools → Network → <code>/system/events</code> Request URL. JWT redacted.</div>
+
+</div>
+<div class="text-sm">
+
+### Why it's High, not cosmetic
+
+- **Full Keycloak user JWT** in the query string — same `Bearer` as every API call, not a scoped ticket
+- Backend takes `?access_token=` on **any** endpoint — `AuthExtensions.cs:73`
+- Replayable from a bare terminal, no cookie → read / list / delete the user's desktops
+- Leaks via proxy logs, screenshares, extensions — **CWE-598**
+
+<div class="status-card status-warn mt-1" style="padding:0.35rem 0.7rem;">
+
+HTTPS + a **5-min token lifetime** bound it → Medium-High. Fix: cookie or short opaque ticket — EventSource can't send headers.
+
+</div>
+
+</div>
+</div>
+
+<!--
+LIVE DEMO: token replay = full account access (turns "exposed" into "owned"):
+1. Get a fresh token: DevTools → Network → the /system/events request → copy the access_token= value.
+2. From a plain terminal — no browser, no cookie, no session:
+     curl -i -H 'Authorization: Bearer <TOKEN>' https://demo.osvdi.uni-freiburg.de/api/v1/user
+     curl    -H 'Authorization: Bearer <TOKEN>' https://demo.osvdi.uni-freiburg.de/api/v1/desktops
+3. Result: your own profile (name, email) + desktop list return 200 OK — proof the URL token is a portable, replayable credential.
+TALKING POINTS:
+- The same token also works as ?access_token= on ANY endpoint (backend AuthExtensions.cs:73, OnMessageReceived, no path restriction) — not just SSE.
+- It is the FULL Keycloak user JWT, so within its ~5-min life anyone who reads one log line / screenshare can read your profile and create/delete your desktops as you. No MFA re-prompt.
+- Severity bounded by HTTPS + 5-min lifetime → Medium-High. Fix: cookie-based auth or a short opaque SSE ticket (EventSource can't send custom headers).
+- Token expires in ~5 min — grab a fresh one right before demoing, and redact it in any screenshot.
+- FALLBACK if offline: the committed screenshot already shows the token in the Request URL; say "I replayed it from a terminal with no session and got my account back."
+-->
 
 ---
 
@@ -937,10 +1036,23 @@ layout: section
 | File transfer needs WebDAV chardev (client code complete) | Medium | `main.js` |
 | Modifier key state **desyncs** on focus loss | Medium | `inputs.js:32` |
 | **No dead key / IME** for non-Latin input | Medium | `code_to_scancode.js` |
-| Audio timestamp **hack** for Firefox | Medium | `playback.js:105` |
+| Audio timestamp **hack** for Firefox ✓ | Medium | `playback.js:105` |
 | Image cache **unbounded** (no eviction) | Medium | `display.js:729` |
 
 </div>
+
+<!--
+FIX PER BUG (root cause → fix). Most are inputs to Rafael's rewrite, NOT patches on 14-yr-old code:
+- H.264 gray area (display.js:528-530, 1199-1202): canvas pinned to server surface height + frame drawn onto the wrong canvas. FIX: size canvas to the browser viewport, blit onto the active display canvas. → rewrite requirement.
+- VideoDecoder leak (display.js:1196): decoder created per stream, never closed. FIX: decoder.close() on stream end / before re-create. → rewrite requirement (one-liner if patched).
+- No WS reconnection (spiceconn.js:88): socket close just drops the session. FIX: reconnect with backoff + re-init channels. → rewrite requirement.
+- File transfer (main.js): client chunked-upload code is COMPLETE; blocked only by the missing org.spice-space.webdav.0 chardev in the VM template. FIX: add the chardev (1 line, infra) — do this NOW, not a rewrite item.
+- Modifier desync (inputs.js:32): key-up missed when tab loses focus while modifier held. FIX: on blur, synthesize key-up for all held modifiers. → rewrite requirement.
+- Dead keys / IME (code_to_scancode.js): raw keycode→scancode map, no composition. FIX: handle compositionend/beforeinput for accented & non-Latin input. → rewrite requirement.
+- Firefox audio (playback.js:105): timestamp fudge to work around Firefox; CONFIRMED no audio in Firefox 2026-06-11. FIX: schedule on the stream PTS via AudioContext properly. → rewrite requirement.
+- Image cache (display.js:729): grows unbounded. FIX: LRU eviction / size cap. → rewrite requirement.
+STRATEGY: file-transfer chardev + SSE-token→cookie are infra/gateway fixes worth doing NOW; the other 6 feed the rewrite by design rather than being patched in.
+-->
 
 ---
 
@@ -1585,7 +1697,7 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
 
 <div class="flex items-center gap-3 mb-2">
 <div class="text-center py-1 px-3 rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800">
-  <div class="hero-stat" style="font-size:1.8rem; background:linear-gradient(135deg,#dc2626,#f87171); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">10</div>
+  <div class="hero-stat" style="font-size:1.8rem; background:linear-gradient(135deg,#dc2626,#f87171); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">13</div>
   <div class="hero-stat-label" style="font-size:0.55rem;">New findings</div>
 </div>
 <div class="text-center py-1 px-3 rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800">
@@ -1593,16 +1705,16 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
   <div class="hero-stat-label" style="font-size:0.55rem;">Critical</div>
 </div>
 <div class="text-center py-1 px-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
-  <div class="hero-stat" style="font-size:1.8rem;">5</div>
+  <div class="hero-stat" style="font-size:1.8rem;">8</div>
   <div class="hero-stat-label" style="font-size:0.55rem;">In spice-html5</div>
 </div>
 </div>
 
 <div class="stacked-bar mb-1">
-  <div class="stacked-segment" style="width:50%; background:#b45309;">spice-html5 (5)</div>
-  <div class="stacked-segment" style="width:20%; background:#0369a1;">Gateway (2)</div>
-  <div class="stacked-segment" style="width:10%; background:#7c3aed;">Server (1)</div>
-  <div class="stacked-segment" style="width:20%; background:#be185d;">Mobile (2)</div>
+  <div class="stacked-segment" style="width:61%; background:#b45309;">spice-html5 (8)</div>
+  <div class="stacked-segment" style="width:8%; background:#0369a1;">Gateway (1)</div>
+  <div class="stacked-segment" style="width:23%; background:#7c3aed;">Server (3)</div>
+  <div class="stacked-segment" style="width:8%; background:#be185d;">Mobile (1)</div>
 </div>
 
 <div class="grid grid-cols-2 gap-3 text-xs">
@@ -1616,6 +1728,8 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
 | File xfer needs WebDAV chardev (code OK) | Medium |
 | Modifier key desync | Medium |
 
+<div class="opacity-60" style="font-size:0.65rem; margin-top:2px;">+3 Medium: dead keys/IME · Firefox audio hack · unbounded image cache</div>
+
 </div>
 <div>
 
@@ -1624,7 +1738,7 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
 | SSE token exposed in URL | High |
 | SPICE binds `0.0.0.0` | Medium |
 | VM template missing chardev | High |
-| Codec mismatch (14→4→3) | High |
+| Codec mismatch (14→6→1) | High |
 | Mobile UX (crop, cursor, KB) | Critical |
 
 </div>
@@ -1632,7 +1746,7 @@ These are **not repeated** in detail — elaborated where relevant in the per-cl
 
 <div v-click class="status-card status-critical mt-1" style="padding:0.3rem 0.75rem;">
 
-**10 new findings** across the stack — most in spice-html5, shared by browser and mobile.
+**13 new findings** across the stack — most in spice-html5, shared by browser and mobile.
 
 </div>
 
@@ -1643,11 +1757,13 @@ DETAILS ON EACH NEW FINDING:
 - No WebSocket reconnection: spiceconn.js:88 — on disconnect, connection is simply dropped. No retry logic. One network blip = session lost
 - File transfer: spice-html5 main.js DOES implement chunked upload (file_xfer_read sends VD_AGENT_FILE_XFER_DATA); filexfer.js is only the drag/drop + progress UI. It is unverified end-to-end on OSVDI and blocked by the same missing org.spice-space.webdav.0 chardev as the native client. NOT a fake/stub.
 - Modifier key desync: inputs.js:32 — when browser tab loses focus while Ctrl/Alt/Shift is held, key-up event is missed. Guest VM thinks modifier is still pressed
-- SSE token in URL: osvdi-fe passes access_token as query parameter to EventSource. Visible in browser history, server logs, referrer headers. EventSource API doesn't support headers — this is a known API limitation, but should use cookie-based auth instead
+- SSE token in URL: osvdi-fe passes the access_token as a query parameter to EventSource (HomePage.js:173 main / :179 dev). It is the FULL Keycloak user JWT — the same Bearer used on every API call, not a scoped SSE ticket — and the backend (AuthExtensions.cs:73, OnMessageReceived, no path restriction) accepts ?access_token= on ANY endpoint, so a captured token can read /user and list/create/delete /desktops as that user. Primary leak vector is server/proxy access logs (full request line) plus screenshare/extensions — NOT browser history or referrer (EventSource is a subresource, hits neither). Bounded by HTTPS + ~5-min token lifetime → Medium-High. Fix: cookie-based auth or a short opaque ticket; EventSource can't send custom headers. Live evidence captured on demo.osvdi (screenshot in this gateway section). CWE-598
 - SPICE binds 0.0.0.0: backend starts SPICE listener on all interfaces instead of localhost. Any network-adjacent host can connect
 - VM template missing chardev: org.spice-space.webdav.0 not configured — file transfer code is complete in server + guest agent but the VM template doesn't enable it. One-line fix
-- Codec mismatch: protocol defines 14, server encodes 4 (reds.cpp:3581), HTML5 decodes 3 reliably. The pipeline narrows at each stage
-- Mobile UX: Android screen cropped + no cursor, iOS taskbar cropped + session dies on screen lock. No modifier keys on either. Screenshots on slide 35
+- Codec mismatch: protocol defines 14; demo.osvdi advertises 6 LIVE (H.264/VP9/H.265/AV1 + VP9/H.265 4:4:4 — display caps 0xD7852, the enhanced branch, confirmed via native remote-viewer handshake 2026-06-11); spice-html5 decodes only H.264 of those, so the browser is pinned to the one buggy codec. Pipeline narrows 14→6→1 on demo (was 14→4→3 on master)
+- Mobile UX: Android screen cropped + no cursor, iOS taskbar cropped + resume reloads to a NEW session (auto-reload fix May 2026 — no true reconnect). No modifier keys on either. Screenshots on slide 35
+- The 3 further spice-html5 Medium bugs (dead keys/IME, Firefox audio timestamp hack, unbounded image cache) are detailed on the "spice-html5: Critical Bugs Found" slide — total 8 there + 1 gateway + 3 server + 1 mobile = 13
+- Firefox audio (✓ hands-on confirmed 2026-06-11): audio does NOT play in Firefox on demo.osvdi — corroborates the timestamp-hack finding (playback.js:105). Works in Chromium-family browsers
 -->
 
 ---
@@ -1769,6 +1885,65 @@ Feed bugs as **rewrite requirements** (reconnection, modifiers, dead keys, non-1
 
 </div>
 </div>
+
+<div class="status-card status-warn mt-2" style="padding:0.4rem 0.75rem;">
+
+**Measured (macOS, 11 ms RTT):** browser **50–150 ms** (usable) vs native Homebrew `virt-viewer` **~1 s + no clipboard**. On macOS the *native* client is the bottleneck — the browser wins. The latency edge needs a working client; macOS lacks one (Linux AppImage is OSVDI's real native target).
+
+</div>
+
+<!--
+MEASURED 2026-06-12 (own testing, macOS — defensible because the browser is the control: same server, same network, only the client differs):
+- TCP RTT to demo.osvdi = 11 ms (network ruled out; ICMP is firewalled).
+- Browser (spice-html5): input echo 50-150 ms = usable.
+- Native Homebrew remote-viewer (spice-gtk 0.42): ~500-1000 ms input lag, clipboard non-functional, gstreamer audio-sink CRITICALs.
+- ATTRIBUTION: browser fine + native laggy on the same server => the macOS native client is the outlier, NOT OSVDI/SPICE/server. Root cause is the brew build (GTK3/GTK4 class clash, software-render path), not the software-encode codec branch.
+- CLIPBOARD: log showed ZERO clipboard-grab events when copying on the Mac (⌘C never reached spice-gtk) — known GTK-quartz limitation; the guest agent was healthy (advertised max-clipboard cap). macOS-client issue, not server.
+- NATIVE-APP HANDOFF: browser "open in native app" emits spice+tls:// which macOS won't auto-launch ("scheme has no registered handler") — must run remote-viewer manually.
+- NOT TESTED: a clean Linux native client (WSL too buggy, no time before the talk). So we do NOT claim native is bad in general — only that macOS has no usable native client today; Linux/AppImage is presumably fine.
+- TAKEAWAY for OSVDI: macOS users are effectively browser-only; if macOS native matters, ship a working bundle (the Priority-2 "bundle virt-viewer" item).
+-->
+
+---
+
+# macOS Native Client: Measured
+
+<div class="grid grid-cols-2 gap-6">
+<div>
+
+<img :src="$base + 'evidence/browser/native-client-mac.png'" class="rounded-lg shadow-md w-full" />
+
+<div class="text-xs opacity-50 mt-1">remote-viewer (spice-gtk 0.42) on demo.osvdi via <code>spice+tls://</code> — same desktop & 11 ms network as the browser.</div>
+
+</div>
+<div class="text-sm">
+
+### Same server, two clients
+
+| Client | Input lag | Clipboard |
+|--------|:---------:|:---------:|
+| Browser (spice-html5) | **50–150 ms** | n/a |
+| Native (brew virt-viewer) | **~1 s** | **broken** |
+
+- Network RTT: **11 ms** → not the network
+- Browser is the control: fine in browser, laggy in native → the **macOS client** is the outlier, not OSVDI
+- Cause: brew build (GTK3/GTK4 clash) + GTK‑quartz clipboard
+
+<div class="status-card status-warn mt-1" style="padding:0.35rem 0.7rem;">
+
+**macOS has no usable native client.** Linux AppImage is OSVDI's real target — untested clean, so we don't generalize.
+
+</div>
+
+</div>
+</div>
+
+<!--
+This slide is the evidence for the latency claim on the previous slide.
+- Screenshot = remote-viewer connected to demo.osvdi (XFCE desktop, session UUID in the title bar) — documents the native client was actually run on macOS.
+- The table is the headline: at 11 ms RTT, browser 50-150 ms (usable) vs native ~1 s (unusable) + clipboard dead. Browser is the control (same server/network), so the macOS native client is the outlier.
+- If asked "did you test Linux native?": no — WSL was too buggy, no clean box before the talk. So we scope the claim to macOS only and don't generalize to "native is bad."
+-->
 
 ---
 
